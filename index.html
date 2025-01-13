@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>HIGH HAND</title>
+        <meta http-equiv="refresh" content="3">
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+<body>
+    <div class="container">
+        <div class="title">Kvällens high hand</div>
+        <div id="imageContainer"></div>
+        <div id="handContainer"></div>
+        <div id="innehavareContainer"></div>
+    </div>
+
+    <script>
+        async function loadVariables() {
+            try {
+                const response = await fetch('highhand.txt');
+                const text = await response.text();
+                // Parse text content into object
+                const lines = text.split('\n');
+                const images = {};
+                
+                lines.forEach(line => {
+                    if (line.trim()) {
+                        const [key, value] = line.split('=').map(s => s.trim());
+                        images[key] = value;
+                    }
+                });
+                return images;
+            } catch (error) {
+                console.error('Error loading variables:', error);
+                return {};
+            }
+        }
+
+        async function displayImages() {
+            const images = await loadVariables();
+            const container = document.getElementById('imageContainer');
+            const handDiv = document.getElementById('handContainer');
+            const innehavareDiv = document.getElementById('innehavareContainer');
+            
+            container.innerHTML = '';
+            
+            for (const [key, imageName] of Object.entries(images)) {
+                if (key.startsWith('kort')) {
+                    const imageDiv = document.createElement('div');
+                    imageDiv.className = 'image-wrapper';
+                    
+                    const img = document.createElement('img');
+                    img.src = `images/${imageName}.png`;
+                    img.alt = key;
+                    
+                    imageDiv.appendChild(img);
+                    container.appendChild(imageDiv);
+                }
+            }
+
+            handDiv.textContent = images.hand;
+            innehavareDiv.textContent = images.innehavare;
+        }
+
+        displayImages();
+    </script>
+</body>
+</html>

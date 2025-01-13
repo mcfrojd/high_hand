@@ -1,0 +1,31 @@
+kort1=nn
+kort2=nn
+kort3=nn
+kort4=nn
+kort5=nn
+hand=x
+innehavare=x
+
+
+
+
+
+
+
+#--------------------------------
+#kort1=10k
+#kort2=jk
+#kort3=qk
+#kort4=kk
+#kort5=ak
+#hand=Royal straight flush
+#innehavare=Lennart Andersson
+#--------------------------------
+#kort1=nn
+#kort2=nn
+#kort3=nn
+#kort4=nn
+#kort5=nn
+#hand=x
+#innehavare=x
+#--------------------------------
