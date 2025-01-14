@@ -2,7 +2,6 @@
 <html>
     <head>
         <title>HIGH HAND</title>
-        {{/*  <meta http-equiv="refresh" content="3">  */}}
         <link rel="stylesheet" href="css/style.css">
     </head>
 <body>
@@ -16,7 +15,8 @@
     <script>
         async function loadVariables() {
             try {
-                const response = await fetch('highhand.txt');
+                const timestamp = new Date().getTime();
+                const response = await fetch(`highhand.txt?v=${timestamp}`);
                 const text = await response.text();
                 // Parse text content into object
                 const lines = text.split('\n');
@@ -61,7 +61,11 @@
             innehavareDiv.textContent = images.innehavare;
         }
 
+        // Initial display
         displayImages();
+
+        // Update every 10 seconds
+        setInterval(displayImages, 10000);
     </script>
 </body>
 </html>
