@@ -35,10 +35,11 @@ body::before {
     width: 95vw;
     margin: 0 auto;
     text-align: center;
-    font-size: 8vw;
+    font-size: 7vw;
     font-weight: bold;
     white-space: nowrap;
     text-shadow: 5px 5px 6px rgba(0, 0, 0);
+    font: 'franklin gothic medium';
     color: #f5b411;
     text-transform: uppercase;
 }
