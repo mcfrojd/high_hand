@@ -3,7 +3,6 @@
     <head>
         <title>HIGH HAND ADMIN</title>
         <link rel="stylesheet" href="css/style.css">
-        <script src="config.js"></script>
     </head>
 <body>
     <div class="admin-container">
@@ -203,32 +202,34 @@
 </div>
 
     <script>
-        function saveValues() {
-            const cards = {};
-            // Save card selections
-            for (let i = 1; i <= 5; i++) {
-                const value = document.getElementById(`cardValue${i}`).value;
-                const suit = document.getElementById(`cardSuit${i}`).value;
-                cards[`kort${i}`] = value + suit;
+        const SHEET_ID = '1l20j_NhoLIYOtUDWhZfH6wdQ0Y2VsjdxaTf6Op_gd7s';
+        const SHEET_NAME = 'data';
+        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
+
+        async function saveValues() {
+            const values = {
+                timestamp: new Date().toISOString(),
+                kort1: document.getElementById('cardValue1').value + document.getElementById('cardSuit1').value,
+                kort2: document.getElementById('cardValue2').value + document.getElementById('cardSuit2').value,
+                kort3: document.getElementById('cardValue3').value + document.getElementById('cardSuit3').value,
+                kort4: document.getElementById('cardValue4').value + document.getElementById('cardSuit4').value,
+                kort5: document.getElementById('cardValue5').value + document.getElementById('cardSuit5').value,
+                hand: document.getElementById('handType').value,
+                innehavare: document.getElementById('playerName').value
+            };
+
+            try {
+                const response = await fetch('https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec', {
+                    method: 'POST',
+                    body: JSON.stringify(values)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to save data');
+                }
+            } catch (error) {
+                console.error('Error saving to sheet:', error);
             }
-            cards.hand = document.getElementById('handType').value;
-            cards.innehavare = document.getElementById('playerName').value;
-            
-            // Save to Gist
-            fetch('https://api.github.com/gists/' + config.GIST_ID, {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': 'token ' + config.GITHUB_TOKEN,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    files: {
-                        'highhand.json': {
-                            content: JSON.stringify(cards)
-                        }
-                    }
-                })
-            });
         }
 
         function initializeDropdowns() {
