@@ -44,7 +44,7 @@ select {
     color: black;
     border: 2px solid #f5b411;
     cursor: pointer;
-    height: 80px;
+    height: 3rem;
 }
 
 select:hover {
@@ -98,13 +98,12 @@ label {
     border-radius: 5px;
     border: 2px solid #f5b411;
     background: white;
-    width: 94%;
-    height: 56px;
+    height: 1.5rem;
 }
 
 .admin-button-container {
     position: absolute;
-    bottom: 5px;
+    bottom: 30px;
     width: 94dvw;
     display: flex;
     justify-content: space-evenly;

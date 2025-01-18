@@ -27,6 +27,7 @@ body::before {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
+    overflow: hidden;
     z-index: 1;
 }
 
