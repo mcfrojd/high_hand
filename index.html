@@ -14,11 +14,14 @@
     </div>
 
     <script>
+        const GIST_URL = 'https://gist.githubusercontent.com/mcfrojd/04b858bc728bf5df64b49929822fd550/raw/highhand.json';
+        
         async function loadVariables() {
             try {
-                const response = await fetch('https://api.github.com/gists/' + config.GIST_ID);
+                const timestamp = new Date().getTime();
+                const response = await fetch(`${GIST_URL}?v=${timestamp}`);
                 const data = await response.json();
-                return JSON.parse(data.files['highhand.json'].content);
+                return data;
             } catch (error) {
                 console.error('Error loading variables:', error);
                 return {};
@@ -40,20 +43,17 @@
                 
                 const img = document.createElement('img');
                 const imageKey = `kort${i}`;
-                const cardValue = images[imageKey].slice(0, -1); // Get value without suit
+                const cardValue = images[imageKey]?.slice(0, -1);
                 
-                // If value is 'nn', use nn.png regardless of suit
                 img.src = cardValue === 'nn' ? 
                     'images/nn.png' : 
                     `images/${images[imageKey]}.png`;
                     
                 img.alt = `Card ${i}`;
-                
                 imageDiv.appendChild(img);
                 container.appendChild(imageDiv);
             }
 
-            // Display hand type and player name
             handDiv.textContent = images.hand || '';
             innehavareDiv.textContent = images.innehavare || '';
         }
