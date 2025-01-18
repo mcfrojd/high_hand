@@ -21,6 +21,7 @@ body::before {
 .admin-container {
     position: relative;
     height: 97vh;
+    max-width: 1000px;
     display: block;
     flex-direction: column;
     justify-content: flex-start; ;
@@ -37,7 +38,7 @@ body::before {
 
 select {
     padding: 10px;
-    font-size: 4dvi;
+    font-size: min(4dvw, 36px);
     border-radius: 5px;
     background-color: white;
     color: black;
@@ -51,7 +52,7 @@ select:hover {
 }
 
 label {
-    font-size: 4dvi;
+    font-size: min(4dvw, 36px);
     color: white;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
@@ -65,7 +66,7 @@ label {
 
 .card-block-title {
     color: white;
-    font-size: 4dvi;
+    font-size: min(4dvw, 36px);
     margin-bottom: 15px;
     text-align: center;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
@@ -80,7 +81,7 @@ label {
 
 .all-cards-container {
     display: block;
-    height: 96vh;
+    height: 95vh;
     flex-direction: column;
     justify-content: space-evenly ;
     gap: 20px;
@@ -93,7 +94,7 @@ label {
 
 .player-input {
     padding: 10px;
-    font-size: 4dvi;
+    font-size: min(4dvw, 36px);
     border-radius: 5px;
     border: 2px solid #f5b411;
     background: white;
@@ -113,7 +114,7 @@ label {
     color: white;
     border: none;
     padding: 20px 60px;
-    font-size: 24px;
+    font-size: min(4dvw, 36px);
     border-radius: 8px;
     cursor: pointer;
     text-transform: uppercase;
