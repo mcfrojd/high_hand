@@ -232,30 +232,61 @@
             }
         }
 
-        function initializeDropdowns() {
+        async function loadVariables() {
             try {
-                const savedCards = JSON.parse(localStorage.getItem('highHandCards')) || {};
+                const timestamp = new Date().getTime();
+                const response = await fetch(`${SHEET_URL}&_=${timestamp}`);
+                const text = await response.text();
+                const data = JSON.parse(text.substring(47).slice(0, -2));
                 
-                // Initialize card selections
+                // Get last row from sheet
+                const lastRowIndex = data.table.rows.length - 1;
+                const row = data.table.rows[lastRowIndex];
+
+                if (!row || !row.c) {
+                    console.error('No data found in sheet');
+                    return {};
+                }
+
+                return {
+                    kort1: row.c[0]?.v || '',
+                    kort2: row.c[1]?.v || '',
+                    kort3: row.c[2]?.v || '',
+                    kort4: row.c[3]?.v || '',
+                    kort5: row.c[4]?.v || '',
+                    hand: row.c[5]?.v || '',
+                    innehavare: row.c[6]?.v || ''
+                };
+            } catch (error) {
+                console.error('Error loading variables:', error);
+                return {};
+            }
+        }
+
+        async function initializeDropdowns() {
+            try {
+                const data = await loadVariables();
+                
+                // Set card values
                 for (let i = 1; i <= 5; i++) {
-                    const savedCard = savedCards[`kort${i}`] || '';
-                    if (savedCard) {
-                        const value = savedCard.slice(0, -1);
-                        const suit = savedCard.slice(-1);
+                    const cardKey = `kort${i}`;
+                    if (data[cardKey]) {
+                        const value = data[cardKey].slice(0, -1);  // Remove last character (suit)
+                        const suit = data[cardKey].slice(-1);      // Get last character (suit)
                         document.getElementById(`cardValue${i}`).value = value;
                         document.getElementById(`cardSuit${i}`).value = suit;
                     }
                 }
                 
-                // Initialize hand type and player name
-                if (savedCards.hand) {
-                    document.getElementById('handType').value = savedCards.hand;
+                // Set hand type and player name
+                if (data.hand) {
+                    document.getElementById('handType').value = data.hand;
                 }
-                if (savedCards.innehavare) {
-                    document.getElementById('playerName').value = savedCards.innehavare;
+                if (data.innehavare) {
+                    document.getElementById('playerName').value = data.innehavare;
                 }
             } catch (error) {
-                console.error('Error loading saved values:', error);
+                console.error('Error initializing dropdowns:', error);
             }
         }
 
