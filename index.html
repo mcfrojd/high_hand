@@ -5,6 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="robots" content="noindex, nofollow">
         <link rel="stylesheet" href="css/main.css">
+        <link rel="manifest" href="/manifest.json">
+        <meta name="theme-color" content="#f5b411">
+        <link rel="apple-touch-icon" href="images/icon-192.png">
     </head>
 <body>
     <div class="container">
@@ -86,6 +89,16 @@
         
         // Update every 10 seconds
         setInterval(displayImages, 10000);
+    </script>
+
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => console.log('ServiceWorker registered'))
+            .catch(err => console.log('ServiceWorker registration failed: ', err));
+        });
+      }
     </script>
 </body>
 </html>
