@@ -30,8 +30,31 @@ body::before {
     z-index: 1;
 }
 
+.admin-container {
+    position: relative;
+    height: 100vh;
+    display: block;
+    flex-direction: column;
+    justify-content: space-evenly ;
+    z-index: 1;
+}
+
 .title {
     height: 15vh;
+    width: 95vw;
+    margin: 0 auto;
+    text-align: center;
+    font-size: 7vw;
+    font-weight: bold;
+    white-space: nowrap;
+    text-shadow: 5px 5px 6px rgba(0, 0, 0);
+    font: 'franklin gothic medium';
+    color: #f5b411;
+    text-transform: uppercase;
+}
+
+.admin-title {
+    height: 8vh;
     width: 95vw;
     margin: 0 auto;
     text-align: center;
@@ -80,4 +103,81 @@ body::before {
     text-transform: uppercase;
     text-shadow: 5px 5px 6px rgba(0, 0, 0);
     color: #38fab3;
+}
+
+.admin-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    z-index: 2;
+}
+
+.select-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 400px;
+    margin: 0 auto;
+}
+
+select {
+    padding: 10px;
+    font-size: 30px;
+    border-radius: 5px;
+    background-color: white;
+    color: black;
+    border: 2px solid #f5b411;
+    cursor: pointer;
+}
+
+select:hover {
+    background-color: #f5f5f5;
+}
+
+label {
+    font-size: 30px;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.card-block {
+    padding: 10px;
+    border: 1px solid #f5b411;
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.card-block-title {
+    color: white;
+    font-size: 24px;
+    margin-bottom: 15px;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.dropdowns-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.all-cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    margin: 20px auto;
+    width: 90%;
+}
+
+.player-input {
+    padding: 10px;
+    font-size: 30px;
+    border-radius: 5px;
+    border: 2px solid #f5b411;
+    background: white;
+    width: 93%;
 }

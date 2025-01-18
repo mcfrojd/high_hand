@@ -15,20 +15,8 @@
     <script>
         async function loadVariables() {
             try {
-                const timestamp = new Date().getTime();
-                const response = await fetch(`highhand.txt?v=${timestamp}`);
-                const text = await response.text();
-                // Parse text content into object
-                const lines = text.split('\n');
-                const images = {};
-                
-                lines.forEach(line => {
-                    if (line.trim()) {
-                        const [key, value] = line.split('=').map(s => s.trim());
-                        images[key] = value;
-                    }
-                });
-                return images;
+                const cards = JSON.parse(localStorage.getItem('highHandCards')) || {};
+                return cards;
             } catch (error) {
                 console.error('Error loading variables:', error);
                 return {};
@@ -43,29 +31,36 @@
             
             container.innerHTML = '';
             
-            for (const [key, imageName] of Object.entries(images)) {
-                if (key.startsWith('kort')) {
-                    const imageDiv = document.createElement('div');
-                    imageDiv.className = 'image-wrapper';
+            // Display card images
+            for (let i = 1; i <= 5; i++) {
+                const imageDiv = document.createElement('div');
+                imageDiv.className = 'image-wrapper';
+                
+                const img = document.createElement('img');
+                const imageKey = `kort${i}`;
+                const cardValue = images[imageKey].slice(0, -1); // Get value without suit
+                
+                // If value is 'nn', use nn.png regardless of suit
+                img.src = cardValue === 'nn' ? 
+                    'images/nn.png' : 
+                    `images/${images[imageKey]}.png`;
                     
-                    const img = document.createElement('img');
-                    img.src = `images/${imageName}.png`;
-                    img.alt = key;
-                    
-                    imageDiv.appendChild(img);
-                    container.appendChild(imageDiv);
-                }
+                img.alt = `Card ${i}`;
+                
+                imageDiv.appendChild(img);
+                container.appendChild(imageDiv);
             }
 
-            handDiv.textContent = images.hand;
-            innehavareDiv.textContent = images.innehavare;
+            // Display hand type and player name
+            handDiv.textContent = images.hand || '';
+            innehavareDiv.textContent = images.innehavare || '';
         }
 
         // Initial display
         displayImages();
-
-        // Update every 1 second
-        setInterval(displayImages, 1000);
+        
+        // Update every 10 seconds
+        setInterval(displayImages, 10000);
     </script>
 </body>
 </html>
