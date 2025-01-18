@@ -23,16 +23,24 @@ body::before {
     height: 100vh;
     display: block;
     flex-direction: column;
-    justify-content: space-evenly ;
+    justify-content: flex-start; ;
     z-index: 1;
 }
 
+.admin-title-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+
 .admin-title {
-    height: 8vh;
-    width: 95vw;
-    margin: 0 auto;
+    display: inline-block;
+    height: auto;
+    width: auto;
+    padding: 5px 5px;
     text-align: center;
-    font-size: 7dvw;
+    font-size: 4vw;
     font-weight: bold;
     white-space: nowrap;
     text-shadow: 5px 5px 6px rgba(0, 0, 0);
