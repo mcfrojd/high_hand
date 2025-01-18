@@ -103,32 +103,58 @@ label {
 }
 
 .admin-button-container {
-    margin: 20px auto;
     position: absolute;
-    right: 25px;
+    bottom: 30px;
+    width: 94dvw;
+    display: flex;
+    justify-content: space-evenly;
+    padding: 0 25px;
+    box-sizing: border-box;
     z-index: 1000;
 }
 
 .admin-save-button {
-    background-color: #ff0000;
-    color: white;
-    border: none;
+    background-color: #4dff00;
+    color: rgb(0, 0, 0);
+    border: 2px solid #f5b411;
     padding: 20px 60px;
     font-size: min(4dvw, 36px);
     border-radius: 8px;
     cursor: pointer;
     text-transform: uppercase;
     font-weight: bold;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     transition: all 0.3s ease;
 }
 
 .admin-save-button:hover {
-    background-color: #cc0000;
+    background-color: #3ecb01;
     transform: scale(1.05);
 }
 
 .admin-save-button:active {
-    background-color: #990000;
+    background-color: #2c9201;
+    transform: scale(0.95);
+}
+
+.admin-reset-button {
+    background-color: #666666;
+    color: white;
+    border: 2px solid #f5b411;
+    padding: 20px 60px;
+    font-size: min(4dvw, 36px);
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.admin-reset-button:hover {
+    background-color: #555555;
+    transform: scale(1.05);
+}
+
+.admin-reset-button:active {
+    background-color: #444444;
     transform: scale(0.95);
 }

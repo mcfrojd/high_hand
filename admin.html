@@ -187,6 +187,7 @@
                             <option value="Triss">Triss</option>
                             <option value="Två Par">Två Par</option>
                             <option value="Ett Par">Ett Par</option>
+                            <option value="Hand">Hand</option>
                         </select>
                     </div>
                     <div class="select-wrapper">
@@ -196,6 +197,7 @@
                 </div>
             </div>
             <div class="admin-button-container">
+                <button id="resetButton" class="admin-reset-button">Återställ</button>
                 <button id="saveButton" class="admin-save-button">SPARA</button>
             </div>
 
@@ -305,6 +307,20 @@
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', initializeDropdowns);
         
+    </script>
+    <script>
+        function resetValues() {
+            // Reset card values
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById(`cardValue${i}`).value = 'nn';
+                document.getElementById(`cardSuit${i}`).value = 'h';
+            }
+            // Reset hand type and player name
+            document.getElementById('handType').value = 'Hand';
+            document.getElementById('playerName').value = 'x';
+        }
+
+        document.getElementById('resetButton').addEventListener('click', resetValues);
     </script>
 </body>
 </html>
