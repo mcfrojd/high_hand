@@ -4,7 +4,7 @@
         <title>HIGH HAND ADMIN</title>
         <link rel="stylesheet" href="css/admin.css">
     </head>
-<body>
+<body class="admin-body">
     <div class="admin-container">
         <div class="admin-title">High Hand Admin</div>
         
@@ -198,8 +198,10 @@
                 </div>
             </div>
         </div>
+        <div class="admin-button-container">
+            <button id="saveButton" class="admin-save-button">SAVE</button>
+        </div>
     </div>
-</div>
 
     <script>
         const SHEET_ID = '1l20j_NhoLIYOtUDWhZfH6wdQ0Y2VsjdxaTf6Op_gd7s';
@@ -290,19 +292,20 @@
             }
         }
 
-        // Add event listeners
+        // Remove existing event listeners
         for (let i = 1; i <= 5; i++) {
-            document.getElementById(`cardValue${i}`).addEventListener('change', saveValues);
-            document.getElementById(`cardSuit${i}`).addEventListener('change', saveValues);
+            document.getElementById(`cardValue${i}`);
+            document.getElementById(`cardSuit${i}`);
         }
-        document.getElementById('handType').addEventListener('change', saveValues);
-        document.getElementById('playerName').addEventListener('blur', saveValues); // Changed from 'input' to 'blur'
+        document.getElementById('handType');
+        document.getElementById('playerName');
+
+        // Add save button click handler
+        document.getElementById('saveButton').addEventListener('click', saveValues);
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', initializeDropdowns);
-
-        // Update every 10 seconds
-        setInterval(initializeDropdowns, 10000);
+        
     </script>
 </body>
 </html>
