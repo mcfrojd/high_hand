@@ -1,3 +1,4 @@
+/* Shared styles */
 body {
     margin: 0;
     padding: 0;
@@ -21,6 +22,12 @@ body::before {
     z-index: -1;
 }
 
+/* Admin specific styles */
+body.admin-body {
+    background: black;
+    position: relative;
+}
+
 .container {
     position: relative;
     height: 100vh;
@@ -35,8 +42,50 @@ body::before {
     height: 100vh;
     display: block;
     flex-direction: column;
-    justify-content: space-evenly ;
+    justify-content: space-evenly;
     z-index: 1;
+}
+
+.admin-cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    margin: 20px auto;
+    width: 90%;
+}
+
+.admin-card-block {
+    padding: 10px;
+    border: 1px solid #f5b411;
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.admin-dropdowns-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.admin-select-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.admin-select-wrapper label {
+    color: white;
+    font-size: 16px;
+}
+
+.admin-select-wrapper select,
+.admin-select-wrapper input {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #f5b411;
+    background: white;
 }
 
 .title {
