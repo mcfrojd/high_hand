@@ -2,17 +2,17 @@
 <html>
     <head>
         <title>HIGH HAND ADMIN</title>
-        <link rel="stylesheet" href="css/admin.css">
+        <link rel="stylesheet" href="css/style.css">
     </head>
-<body class="admin-body">
+<body>
     <div class="admin-container">
         <div class="admin-title">High Hand Admin</div>
         
-        <div class="admin-cards-container">
+        <div class="all-cards-container">
             <!-- Card Block 1 -->
-            <div class="admin-card-block">
-                <div class="admin-dropdowns-container">
-                    <div class="admin-select-wrapper">
+            <div class="card-block">
+                <div class="dropdowns-container">
+                    <div class="select-wrapper">
                         <label for="cardValue1">Kort 1 - Värde:</label>
                         <select id="cardValue1">
                             <option value="a">Ess</option>
@@ -31,7 +31,7 @@
                             <option value="nn">Baksida</option>
                         </select>
                     </div>
-                    <div class="admin-select-wrapper">
+                    <div class="select-wrapper">
                         <label for="cardSuit1">Kort 1 - Färg:</label>
                         <select id="cardSuit1">
                             <option value="h">Hjärter</option>
@@ -43,9 +43,9 @@
                 </div>
             </div>
             <!-- Card Block 2 -->
-            <div class="admin-card-block">
-                <div class="admin-dropdowns-container">
-                    <div class="admin-select-wrapper">
+            <div class="card-block">
+                <div class="dropdowns-container">
+                    <div class="select-wrapper">
                         <label for="cardValue2">Kort 2 - Värde:</label>
                         <select id="cardValue2">
                             <option value="a">Ess</option>
@@ -64,7 +64,7 @@
                             <option value="nn">Baksida</option>
                         </select>
                     </div>
-                    <div class="admin-select-wrapper">
+                    <div class="select-wrapper">
                         <label for="cardSuit2">Kort 2 - Färg:</label>
                         <select id="cardSuit2">
                             <option value="h">Hjärter</option>
@@ -76,9 +76,9 @@
                 </div>
             </div>
             <!-- Card Block 3 -->
-            <div class="admin-card-block">
-                <div class="admin-dropdowns-container">
-                    <div class="admin-select-wrapper">
+            <div class="card-block">
+                <div class="dropdowns-container">
+                    <div class="select-wrapper">
                         <label for="cardValue3">Kort 3 - Värde:</label>
                         <select id="cardValue3">
                             <option value="a">Ess</option>
@@ -97,7 +97,7 @@
                             <option value="nn">Baksida</option>
                         </select>
                     </div>
-                    <div class="admin-select-wrapper">
+                    <div class="select-wrapper">
                         <label for="cardSuit3">Kort 3 - Färg:</label>
                         <select id="cardSuit3">
                             <option value="h">Hjärter</option>
@@ -109,9 +109,9 @@
                 </div>
             </div>
             <!-- Card Block 4 -->
-            <div class="admin-card-block">
-                <div class="admin-dropdowns-container">
-                    <div class="admin-select-wrapper">
+            <div class="card-block">
+                <div class="dropdowns-container">
+                    <div class="select-wrapper">
                         <label for="cardValue4">Kort 4 - Värde:</label>
                         <select id="cardValue4">
                             <option value="a">Ess</option>
@@ -130,7 +130,7 @@
                             <option value="nn">Baksida</option>
                         </select>
                     </div>
-                    <div class="admin-select-wrapper">
+                    <div class="select-wrapper">
                         <label for="cardSuit4">Kort 4 - Färg:</label>
                         <select id="cardSuit4">
                             <option value="h">Hjärter</option>
@@ -142,9 +142,9 @@
                 </div>
             </div>
             <!-- Card Block 5 -->
-            <div class="admin-card-block">
-                <div class="admin-dropdowns-container">
-                    <div class="admin-select-wrapper">
+            <div class="card-block">
+                <div class="dropdowns-container">
+                    <div class="select-wrapper">
                         <label for="cardValue5">Kort 5 - Värde:</label>
                         <select id="cardValue5">
                             <option value="a">Ess</option>
@@ -163,7 +163,7 @@
                             <option value="nn">Baksida</option>
                         </select>
                     </div>
-                    <div class="admin-select-wrapper">
+                    <div class="select-wrapper">
                         <label for="cardSuit5">Kort 5 - Färg:</label>
                         <select id="cardSuit5">
                             <option value="h">Hjärter</option>
@@ -175,9 +175,9 @@
                 </div>
             </div>
             <!-- Hand and Player Container -->
-            <div class="admin-card-block">
-                <div class="admin-dropdowns-container">
-                    <div class="admin-select-wrapper">
+            <div class="card-block">
+                <div class="dropdowns-container">
+                    <div class="select-wrapper">
                         <label for="handType">Typ av hand:</label>
                         <select id="handType">
                             <option value="Royal Straight Flush">Royal Straight Flush</option>
@@ -191,7 +191,7 @@
                             <option value="Ett Par">Ett Par</option>
                         </select>
                     </div>
-                    <div class="admin-select-wrapper">
+                    <div class="select-wrapper">
                         <label for="playerName">Innehavare:</label>
                         <input type="text" id="playerName" class="player-input">
                     </div>
@@ -303,7 +303,6 @@
 
         // Update every 10 seconds
         setInterval(initializeDropdowns, 10000);
-
     </script>
 </body>
 </html>
