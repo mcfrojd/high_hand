@@ -101,8 +101,10 @@ label {
 }
 
 .all-cards-container {
-    display: flex;
+    display: block;
+    height: 85vh;
     flex-direction: column;
+    justify-content: space-evenly ;
     gap: 20px;
     padding: 20px;
     background: rgba(0, 0, 0, 0.3);
@@ -122,9 +124,9 @@ label {
 }
 
 .admin-button-container {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
+    margin: 20px auto;
+    position: absolute;
+    right: 25px;
     z-index: 1000;
 }
 
