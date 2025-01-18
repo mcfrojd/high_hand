@@ -3,6 +3,7 @@
     <head>
         <title>HIGH HAND</title>
         <link rel="stylesheet" href="css/style.css">
+        <script src="config.js"></script>
     </head>
 <body>
     <div class="container">
@@ -15,8 +16,9 @@
     <script>
         async function loadVariables() {
             try {
-                const cards = JSON.parse(localStorage.getItem('highHandCards')) || {};
-                return cards;
+                const response = await fetch('https://api.github.com/gists/' + config.GIST_ID);
+                const data = await response.json();
+                return JSON.parse(data.files['highhand.json'].content);
             } catch (error) {
                 console.error('Error loading variables:', error);
                 return {};

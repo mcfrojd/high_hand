@@ -30,6 +30,17 @@ ___
 3. [Simple Web Server](https://simplewebserver.org/)
 ___
 
+### Setup
+1. Create `config.js` in root directory
+2. Add your GitHub token and Gist ID:
+```javascript
+const config = {
+    GITHUB_TOKEN: 'your_token_here',
+    GIST_ID: 'your_gist_id_here'
+};
+```
+___
+
 ### Screenshots
 
 ![Aktuell HIGH HAND](screenshots/highhand_now.jpg)

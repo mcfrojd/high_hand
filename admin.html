@@ -3,6 +3,7 @@
     <head>
         <title>HIGH HAND ADMIN</title>
         <link rel="stylesheet" href="css/style.css">
+        <script src="config.js"></script>
     </head>
 <body>
     <div class="admin-container">
@@ -210,11 +211,24 @@
                 const suit = document.getElementById(`cardSuit${i}`).value;
                 cards[`kort${i}`] = value + suit;
             }
-            // Save hand type and player name
             cards.hand = document.getElementById('handType').value;
             cards.innehavare = document.getElementById('playerName').value;
             
-            localStorage.setItem('highHandCards', JSON.stringify(cards));
+            // Save to Gist
+            fetch('https://api.github.com/gists/' + config.GIST_ID, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': 'token ' + config.GITHUB_TOKEN,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    files: {
+                        'highhand.json': {
+                            content: JSON.stringify(cards)
+                        }
+                    }
+                })
+            });
         }
 
         function initializeDropdowns() {
