@@ -3,12 +3,12 @@ admin-body {
     padding: 0;
     height: 100dvh;
     width: 100dvw;
-    position: relative;
+    position: fixed;
 }
 
 body::before {
     content: '';
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
