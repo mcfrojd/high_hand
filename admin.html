@@ -300,6 +300,10 @@
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', initializeDropdowns);
+
+        // Update every 10 seconds
+        setInterval(initializeDropdowns, 10000);
+
     </script>
 </body>
 </html>
