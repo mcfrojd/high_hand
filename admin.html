@@ -296,7 +296,7 @@
             document.getElementById(`cardSuit${i}`).addEventListener('change', saveValues);
         }
         document.getElementById('handType').addEventListener('change', saveValues);
-        document.getElementById('playerName').addEventListener('input', saveValues);
+        document.getElementById('playerName').addEventListener('blur', saveValues); // Changed from 'input' to 'blur'
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', initializeDropdowns);
