@@ -67,20 +67,17 @@ label {
 .dropdowns-container {
     display: flex;
     justify-content: center;
-    
-    
 }
 
 .all-cards-container {
     display: flex;
     height: 98dvh;
     flex-direction: column;
-    justify-content: flex-start ;
+    justify-content: flex-start;
     gap: 5px;
     padding: 5px;
     background: rgba(0, 0, 0, 0.3);
     border-radius: 10px;
-    
 }
 
 .player-input {
@@ -103,7 +100,6 @@ label {
 }
 
 .admin-save-button {
-    
     background-color: #4dff00;
     color: rgb(0, 0, 0);
     border: 2px solid #f5b411;
@@ -151,10 +147,10 @@ label {
 
 
 /* Make sure form elements are responsive */
-select, input, button {
+select,
+input,
+button {
     width: 100%;
     padding: 1rem;
     margin-bottom: 1rem;
 }
-
-

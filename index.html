@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>HIGH HAND</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="robots" content="noindex, nofollow">
-        <link rel="stylesheet" href="css/main.css">
-    </head>
+
+<head>
+    <title>HIGH HAND</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+
 <body>
     <div class="container">
         <div class="title">Kvällens high hand</div>
@@ -18,14 +20,14 @@
         const SHEET_ID = '1l20j_NhoLIYOtUDWhZfH6wdQ0Y2VsjdxaTf6Op_gd7s';
         const SHEET_NAME = 'data';
         const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
-        
+
         async function loadVariables() {
             try {
                 const timestamp = new Date().getTime();
                 const response = await fetch(`${SHEET_URL}&_=${timestamp}`);
                 const text = await response.text();
                 const data = JSON.parse(text.substring(47).slice(0, -2));
-                
+
                 // Get last row from sheet
                 const lastRowIndex = data.table.rows.length - 1;
                 const row = data.table.rows[lastRowIndex];
@@ -56,22 +58,22 @@
             const container = document.getElementById('imageContainer');
             const handDiv = document.getElementById('handContainer');
             const innehavareDiv = document.getElementById('innehavareContainer');
-            
+
             container.innerHTML = '';
-            
+
             // Display card images
             for (let i = 1; i <= 5; i++) {
                 const imageDiv = document.createElement('div');
                 imageDiv.className = 'image-wrapper';
-                
+
                 const img = document.createElement('img');
                 const imageKey = `kort${i}`;
                 const cardValue = images[imageKey]?.slice(0, -1);
-                
-                img.src = cardValue === 'nn' ? 
-                    'images/nn.png' : 
+
+                img.src = cardValue === 'nn' ?
+                    'images/nn.png' :
                     `images/${images[imageKey]}.png`;
-                    
+
                 img.alt = `Card ${i}`;
                 imageDiv.appendChild(img);
                 container.appendChild(imageDiv);
@@ -83,9 +85,10 @@
 
         // Initial display
         displayImages();
-        
+
         // Update every 10 seconds
         setInterval(displayImages, 3000);
     </script>
 </body>
+
 </html>

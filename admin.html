@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>HH ADMIN</title>
-        <meta name="robots" content="noindex, nofollow">
-        <link rel="stylesheet" href="css/admin.css">
-        <link rel="manifest" href="manifest.json">
-        <meta name="theme-color" content="#f5b411">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <link rel="apple-touch-icon" href="images/icon-192.png">
-        <script>
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('SW registered:', reg.scope))
-                    .catch(err => console.error('SW registration failed:', err));
-            }
-        </script>
-    </head>
+
+<head>
+    <title>HH ADMIN</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f5b411">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="apple-touch-icon" href="images/icon-192.png">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('SW registered:', reg.scope))
+                .catch(err => console.error('SW registration failed:', err));
+        }
+    </script>
+</head>
+
 <body class="admin-body">
     <div class="admin-container">
         <div class="all-cards-container">
@@ -199,7 +201,7 @@
                             <option value="Triss">Triss</option>
                             <option value="Två Par">Två Par</option>
                             <option value="Ett Par">Ett Par</option>
-                            <option value="Hand">Hand</option>
+                            <option value="100 kr frivillig sidopott">Sidopott</option>
                         </select>
                     </div>
                     <div class="select-wrapper">
@@ -207,11 +209,11 @@
                         <input type="text" id="playerName" class="player-input">
                     </div>
                 </div>
-            </div>            
+            </div>
             <div class="admin-button-container">
                 <button id="resetButton" class="admin-reset-button">Återställ</button>
                 <button id="saveButton" class="admin-save-button">SPARA</button>
-        </div>
+            </div>
 
         </div>
     </div>
@@ -238,7 +240,7 @@
                     method: 'POST',
                     body: JSON.stringify(values)
                 });
-                
+
                 if (!response.ok) {
                     throw new Error('Failed to save data');
                 }
@@ -253,7 +255,7 @@
                 const response = await fetch(`${SHEET_URL}&_=${timestamp}`);
                 const text = await response.text();
                 const data = JSON.parse(text.substring(47).slice(0, -2));
-                
+
                 // Get last row from sheet
                 const lastRowIndex = data.table.rows.length - 1;
                 const row = data.table.rows[lastRowIndex];
@@ -281,7 +283,7 @@
         async function initializeDropdowns() {
             try {
                 const data = await loadVariables();
-                
+
                 // Set card values
                 for (let i = 1; i <= 5; i++) {
                     const cardKey = `kort${i}`;
@@ -292,7 +294,7 @@
                         document.getElementById(`cardSuit${i}`).value = suit;
                     }
                 }
-                
+
                 // Set hand type and player name
                 if (data.hand) {
                     document.getElementById('handType').value = data.hand;
@@ -318,9 +320,7 @@
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', initializeDropdowns);
-        
-    </script>
-    <script>
+
         function resetValues() {
             // Reset card values
             for (let i = 1; i <= 5; i++) {
@@ -328,11 +328,12 @@
                 document.getElementById(`cardSuit${i}`).value = 'h';
             }
             // Reset hand type and player name
-            document.getElementById('handType').value = 'Hand';
-            document.getElementById('playerName').value = 'x';
+            document.getElementById('handType').value = '100 kr frivillig sidopott';
+            document.getElementById('playerName').value = 'Antal anmälda: ';
         }
 
         document.getElementById('resetButton').addEventListener('click', resetValues);
     </script>
 </body>
+
 </html>
