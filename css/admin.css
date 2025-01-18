@@ -53,7 +53,7 @@ body::before {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    width: 400px;
+    width: 50%;
     margin: 0 auto;
 }
 
@@ -65,6 +65,7 @@ select {
     color: black;
     border: 2px solid #f5b411;
     cursor: pointer;
+    height: 80px;
 }
 
 select:hover {
@@ -95,7 +96,8 @@ label {
 .dropdowns-container {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 10px;
+    
 }
 
 .all-cards-container {
@@ -105,8 +107,8 @@ label {
     padding: 20px;
     background: rgba(0, 0, 0, 0.3);
     border-radius: 10px;
-    margin: 20px auto;
-    width: 90%;
+    margin: 10px auto;
+    width: 95%;
 }
 
 .player-input {
@@ -115,5 +117,6 @@ label {
     border-radius: 5px;
     border: 2px solid #f5b411;
     background: white;
-    width: 93%;
+    width: 94%;
+    height: 56px;
 }
