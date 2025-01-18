@@ -1,8 +1,8 @@
 admin-body {
     margin: 0;
     padding: 0;
-    height: 100vh;
-    width: 100vw;
+    height: 100dvh;
+    width: 100dvw;
     position: relative;
 }
 
@@ -20,7 +20,7 @@ body::before {
 
 .admin-container {
     position: relative;
-    height: 97vh;
+    height: 97dvh;
     max-width: 1000px;
     display: block;
     flex-direction: column;
@@ -81,7 +81,7 @@ label {
 
 .all-cards-container {
     display: block;
-    height: 95vh;
+    height: 95dvh;
     flex-direction: column;
     justify-content: space-evenly ;
     gap: 20px;
