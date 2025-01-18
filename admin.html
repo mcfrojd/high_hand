@@ -3,11 +3,18 @@
     <head>
         <title>HIGH HAND ADMIN</title>
         <meta name="robots" content="noindex, nofollow">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="css/admin.css">
-        <link rel="manifest" href="/manifest.json">
+        <link rel="manifest" href="manifest.json">
         <meta name="theme-color" content="#f5b411">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="apple-touch-icon" href="images/icon-192.png">
+        <script>
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('SW registered:', reg.scope))
+                    .catch(err => console.error('SW registration failed:', err));
+            }
+        </script>
     </head>
 <body class="admin-body">
     <div class="admin-container">
@@ -326,16 +333,6 @@
         }
 
         document.getElementById('resetButton').addEventListener('click', resetValues);
-    </script>
-
-    <script>
-        if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js', {scope: './'})
-            .then(registration => console.log('ServiceWorker registered'))
-            .catch(err => console.log('ServiceWorker registration failed: ', err));
-        });
-        }
     </script>
 </body>
 </html>

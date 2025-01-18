@@ -1,22 +1,22 @@
 {
-    "name": "High Hand Admin",
-    "short_name": "HH Admin",
-    "description": "Admin panel for High Hand display",
-    "start_url": "./admin.html",
-    "scope": "./",
-    "display": "standalone",
-    "background_color": "#000000",
-    "theme_color": "#f5b411",
-    "icons": [
+  "name": "High Hand Admin",
+  "short_name": "HH Admin",
+  "description": "Admin panel for High Hand display",
+  "start_url": "admin.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#f5b411",
+  "icons": [
       {
-        "src": "./images/icon-192.png",
-        "sizes": "192x192",
-        "type": "image/png"
+          "src": "images/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
       },
       {
-        "src": "./images/icon-512.png",
-        "sizes": "512x512",
-        "type": "image/png"
+          "src": "images/icon-512.png",
+          "sizes": "512x512",
+          "type": "image/png"
       }
-    ]
+  ]
 }
