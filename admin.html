@@ -236,7 +236,7 @@
                 const response = await fetch('https://script.google.com/macros/s/AKfycbydLNRjg3vogef1hhn-TCZqsHpJBKYCg6-HC8gYmqVDXfTt6bFCrmsnP0L33mny3yiRHg/exec', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
                     mode: 'cors',
                     body: JSON.stringify(values)
@@ -248,13 +248,13 @@
 
                 const result = await response.json();
                 if (result.status === 'success') {
-                    console.log('Data saved successfully');
+                    alert('Data saved successfully');
                 } else {
                     throw new Error(result.message || 'Failed to save data');
                 }
             } catch (error) {
                 console.error('Error saving to sheet:', error);
-                alert('Failed to save data. Please try again.');
+                alert('Failed to save data: ' + error.message);
             }
         }
 
