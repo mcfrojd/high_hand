@@ -222,7 +222,6 @@
 
         async function saveValues() {
             const values = {
-                timestamp: new Date().toISOString(),
                 kort1: document.getElementById('kort1').value + document.getElementById('farg1').value,
                 kort2: document.getElementById('kort2').value + document.getElementById('farg2').value,
                 kort3: document.getElementById('kort3').value + document.getElementById('farg3').value,
@@ -244,10 +243,18 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to save data');
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                if (result.status === 'success') {
+                    console.log('Data saved successfully');
+                } else {
+                    throw new Error(result.message || 'Failed to save data');
                 }
             } catch (error) {
                 console.error('Error saving to sheet:', error);
+                alert('Failed to save data. Please try again.');
             }
         }
 
