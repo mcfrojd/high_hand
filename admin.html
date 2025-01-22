@@ -28,6 +28,17 @@
             <span></span>
         </button>
     </header>
+    <div id="menuOverlay" class="menu-overlay">
+        <button id="closeMenu" class="close-btn">&times;</button>
+        <div class="menu-content">
+            <label for="background">Bakgrund</label>
+            <select id="background">
+                <option value="table.jpg">Pokerbord</option>
+                <option value="felt.jpg">Filtbord</option>
+                <option value="wood.jpg">Träbord</option>
+            </select>
+        </div>
+    </div>
     <div class="container">
         <div class="grid">
             <div class="row">
@@ -229,7 +240,8 @@
                 kort5: document.getElementById('kort5').value + document.getElementById('farg5').value,
                 hand: document.getElementById('hand').value,
                 namn: document.getElementById('namn').value,
-                antal: document.getElementById('antal').value
+                antal: document.getElementById('antal').value,
+                background: document.getElementById('background').value
             };
 
             try {
@@ -272,7 +284,8 @@
                     kort5: row.c[4]?.v || '',
                     hand: row.c[5]?.v || '',
                     namn: row.c[6]?.v || '',
-                    antal: row.c[7]?.v || ''
+                    antal: row.c[7]?.v || '',
+                    background: row.c[9]?.v || ''
                 };
             } catch (error) {
                 console.error('Error loading variables:', error);
@@ -304,6 +317,9 @@
                 }
                 if (data.antal) {
                     document.getElementById('antal').value = data.antal;
+                }
+                if (data.background) {
+                    document.getElementById('background').value = data.background;
                 }
             } catch (error) {
                 console.error('Error initializing dropdowns:', error);
@@ -341,6 +357,15 @@
         }
 
         document.getElementById('resetButton').addEventListener('click', resetValues);
+
+        document.querySelector('.hamburger-btn').addEventListener('click', () => {
+            document.getElementById('menuOverlay').classList.toggle('active');
+        });
+
+        document.getElementById('closeMenu').addEventListener('click', async () => {
+            document.getElementById('menuOverlay').classList.remove('active');
+            document.getElementById('saveButton').click();
+        });
     </script>
 </body>
 

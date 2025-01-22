@@ -175,6 +175,43 @@ label {
     font-size: clamp(14px, 1.6vw, 18px);
 }
 
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 300px;
+    height: 100vh;
+    background: #2d2d2d;
+    transition: right 0.3s ease;
+    z-index: 1000;
+    padding: 20px;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.3);
+}
+
+.menu-overlay.active {
+    right: 0;
+}
+
+.menu-content {
+    margin-top: 60px;
+}
+
+.close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: #e0e0e0;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px 10px;
+}
+
+.close-btn:hover {
+    color: #f5b411;
+}
+
 @media screen and (max-width: 400px) {
     .row {
         grid-template-columns: 1fr;

@@ -21,6 +21,7 @@
         const SHEET_NAME = 'data';
         const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
 
+        // Update loadVariables function
         async function loadVariables() {
             try {
                 const timestamp = new Date().getTime();
@@ -45,10 +46,11 @@
                     kort4: row.c[3]?.v || '',
                     kort5: row.c[4]?.v || '',
                     hand: row.c[5]?.v || '',
-                    innehavare: row.c[6]?.v || ''
+                    namn: row.c[6]?.v || '',
+                    background: row.c[9]?.v || 'table.jpg'  // Default background
                 };
             } catch (error) {
-                console.error('Error loading variables:', error);
+                console.error('Error:', error);
                 return {};
             }
         }
@@ -69,6 +71,7 @@
             }
         }
 
+        // Update displayImages function
         async function displayImages() {
             const images = await loadVariables();
             const container = document.getElementById('imageContainer');
@@ -99,6 +102,12 @@
             handDiv.textContent = images.hand || '';
             optimizeTextSize();
             innehavareDiv.textContent = images.innehavare || '';
+
+            // Update background
+            document.body.style.setProperty(
+                '--bg-image', 
+                `url("images/backgrounds/${images.background}")`
+            );
         }
 
         // Remove other text scaling functions and observers
