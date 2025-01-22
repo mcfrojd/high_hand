@@ -53,6 +53,22 @@
             }
         }
 
+        function optimizeTextSize() {
+            const container = document.getElementById('handContainer');
+            const containerWidth = container.offsetWidth;
+            const containerHeight = container.offsetHeight;
+            
+            // Start with a large font size
+            let fontSize = containerHeight;
+            container.style.fontSize = fontSize + 'px';
+            
+            // Reduce until text fits width
+            while ((container.scrollWidth > containerWidth || container.scrollHeight > containerHeight) && fontSize > 1) {
+                fontSize = fontSize * 0.9;
+                container.style.fontSize = fontSize + 'px';
+            }
+        }
+
         async function displayImages() {
             const images = await loadVariables();
             const container = document.getElementById('imageContainer');
@@ -80,8 +96,13 @@
             }
 
             handDiv.textContent = images.hand || '';
+            optimizeTextSize();
             innehavareDiv.textContent = images.innehavare || '';
         }
+
+        // Remove other text scaling functions and observers
+        const resizeObserver = new ResizeObserver(optimizeTextSize);
+        resizeObserver.observe(document.getElementById('handContainer'));
 
         // Initial display
         displayImages();
