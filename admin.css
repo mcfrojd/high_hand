@@ -149,13 +149,6 @@ input {
     background-color: #666;
 }
 
-.logo-placeholder {
-    width: clamp(40px, 5vw, 60px);
-    height: clamp(40px, 5vw, 60px);
-    background-color: #444;
-    border-radius: 4px;
-}
-
 .title {
     font-size: clamp(18px, 2vw, 28px);
     color: #e0e0e0;
