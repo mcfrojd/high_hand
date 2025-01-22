@@ -74,6 +74,8 @@
         // Update displayImages function
         async function displayImages() {
             const images = await loadVariables();
+            console.log('Background image:', images.background);
+            document.body.style.setProperty('--bg-image', `url("/images/backgrounds/${images.background}")`);
             const container = document.getElementById('imageContainer');
             const handDiv = document.getElementById('handContainer');
             const innehavareDiv = document.getElementById('innehavareContainer');
