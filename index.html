@@ -86,8 +86,12 @@
         // Initial display
         displayImages();
 
-        // Update every 10 seconds
-        setInterval(displayImages, 3000);
+        // Listen for changes from admin page
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'updateDisplay') {
+                displayImages();
+            }
+        });
     </script>
 </body>
 
