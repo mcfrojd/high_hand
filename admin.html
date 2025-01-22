@@ -334,6 +334,9 @@
             document.getElementById('hand').value = '100 kr frivillig sidopott';
             document.getElementById('namn').value = 'Antal anmälda: ';
             document.getElementById('antal').value = '0';
+            
+            // Trigger save after reset
+            document.getElementById('saveButton').click();
         }
 
         document.getElementById('resetButton').addEventListener('click', resetValues);
