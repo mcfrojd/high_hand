@@ -86,9 +86,10 @@
                 const imageKey = `kort${i}`;
                 const cardValue = images[imageKey]?.slice(0, -1);
 
+                // Update in displayImages function
                 img.src = cardValue === 'nn' ?
-                    'images/nn.png' :
-                    `images/${images[imageKey]}.png`;
+                    'images/cards/nn.png' :
+                    `images/cards/${images[imageKey]}.png`;
 
                 img.alt = `Card ${i}`;
                 imageDiv.appendChild(img);

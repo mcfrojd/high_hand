@@ -1,10 +1,11 @@
-const CACHE_NAME = 'high-hand-admin-v2';
+const CACHE_NAME = 'high-hand-admin-v3';
 const ASSETS = [
-  'admin.html',
-  'manifest.json',
-  'images/icon-192.png',
-  'images/icon-512.png',
-  'css/styles.css'
+    'admin.html',
+    'manifest.json',
+    'images/misc/icon-192.png',
+    'images/misc/icon-512.png',
+    'images/misc/logo.png',
+    'css/admin.css'
 ];
 
 self.addEventListener('install', (event) => {
