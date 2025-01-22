@@ -68,7 +68,25 @@ body::before {
     object-fit: contain;
 }
 
-#handContainer, #innehavareContainer {
+#handContainer {
+    width: 95vw;
+    height: 15vh;
+    margin: 0 auto;
+    text-align: center;
+    line-height: 1.2;
+    padding: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    font-weight: bold;
+    color: #f5b411;
+    text-shadow: 5px 5px 6px rgba(0, 0, 0);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#innehavareContainer {
     height: 15vh;
     width: 90vw;
     margin: 0 auto;
