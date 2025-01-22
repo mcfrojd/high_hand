@@ -104,15 +104,26 @@
         const resizeObserver = new ResizeObserver(optimizeTextSize);
         resizeObserver.observe(document.getElementById('handContainer'));
 
+        // Add lastUpdate variable to track changes
+        let lastUpdate = '';
+
+        async function checkForUpdates() {
+            const images = await loadVariables();
+            // Create hash of current data
+            const currentUpdate = JSON.stringify(images);
+            
+            // If data changed, update display
+            if (currentUpdate !== lastUpdate) {
+                lastUpdate = currentUpdate;
+                displayImages();
+            }
+        }
+
         // Initial display
         displayImages();
 
-        // Listen for changes from admin page
-        window.addEventListener('storage', (e) => {
-            if (e.key === 'updateDisplay') {
-                displayImages();
-            }
-        });
+        // Poll for updates every 2 seconds
+        setInterval(checkForUpdates, 2000);
     </script>
 </body>
 
