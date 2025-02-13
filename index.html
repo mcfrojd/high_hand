@@ -29,7 +29,10 @@
         <div class="title">Kvällens high hand</div>
         <div id="imageContainer"></div>
         <div id="handContainer"></div>
-        <div id="innehavareContainer"></div>
+        <div id="innehavareRow">
+            <div id="innehavareContainer"></div>
+            <div id="antalDisplay"></div>
+        </div>
     </div>
 
     <script>
@@ -63,6 +66,7 @@
                     kort5: row.c[4]?.v || '',
                     hand: row.c[5]?.v || '',
                     namn: row.c[6]?.v || '',
+                    antal: row.c[7]?.v || '',
                     background: row.c[9]?.v || 'table.jpg'  // Default background
                 };
             } catch (error) {
@@ -96,6 +100,7 @@
             const container = document.getElementById('imageContainer');
             const handDiv = document.getElementById('handContainer');
             const innehavareDiv = document.getElementById('innehavareContainer');
+            const antalDiv = document.getElementById('antalDisplay');
 
             container.innerHTML = '';
 
@@ -121,6 +126,7 @@
             handDiv.textContent = images.hand || '';
             optimizeTextSize();
             innehavareDiv.textContent = images.namn || '';
+            antalDiv.textContent = images.antal || '0';
 
             // Update background
             document.body.style.setProperty(
