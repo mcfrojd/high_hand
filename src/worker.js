@@ -102,8 +102,9 @@ async function handleBackground(request, stub) {
 // Configure with secrets (never in the repo):
 //   NTFY_URL   = https://ntfy.example.com/<topic>
 //   NTFY_TOKEN = access token (optional, for protected topics)
-// The key is deliberately not included: it grants admin access.
-async function notifyNewSession(env, request, { club, lang }) {
+// The message includes the screen link. Note that the key in it also opens
+// admin, so the topic should be private (it is, with a token).
+async function notifyNewSession(env, request, { key, club, lang }) {
   if (!env.NTFY_URL) return;
   try {
     const target = new URL(env.NTFY_URL);
@@ -111,12 +112,17 @@ async function notifyNewSession(env, request, { club, lang }) {
     if (!topic) return;
     const origin = new URL(request.url).origin;
     const country = request.cf?.country ? ` · ${request.cf.country}` : '';
+    const screen = `${origin}/${key}/`;
     const body = {
       topic,
       title: 'Ny High Hand-session',
-      message: `${club || '(inget klubbnamn)'}\nSpråk: ${lang === 'en' ? 'engelska' : 'svenska'}${country}`,
+      message: `${club || '(inget klubbnamn)'}\n${lang}${country}\n${screen}`,
       tags: ['spades'],
-      click: `${origin}/dashboard/`,
+      click: screen,
+      actions: [
+        { action: 'view', label: 'Skärm', url: screen, clear: false },
+        { action: 'view', label: 'Dashboard', url: `${origin}/dashboard/`, clear: false },
+      ],
     };
     const headers = { 'Content-Type': 'application/json' };
     if (env.NTFY_TOKEN) headers.Authorization = `Bearer ${env.NTFY_TOKEN}`;
@@ -200,7 +206,7 @@ async function handleApi(request, env, parts, ctx) {
       const state = await stubFor(env, key).init(key, lang, club);
       if (state) {
         // Fire-and-forget: a failing notification must never block creating a session.
-        ctx?.waitUntil(notifyNewSession(env, request, { club, lang }));
+        ctx?.waitUntil(notifyNewSession(env, request, { key, club, lang }));
         return json({ key, expiresAt: state.expiresAt }, 201);
       }
     }
