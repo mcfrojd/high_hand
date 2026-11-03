@@ -23,12 +23,11 @@
         <div class="tv-code" id="code" aria-live="polite">––– –––</div>
         <p class="tv-small"><span data-i18n="tvExpiresIn">Koden byts om</span> <span id="countdown"></span></p>
         <p class="tv-status" id="status" hidden></p>
-        <button type="button" class="btn primary tv-continue" id="continue" hidden></button>
         <p class="tv-small" data-i18n="tvTip">Tips: bokmärk den här sidan på TV:n.</p>
     </main>
 
     <script type="module">
-        import { createPairCode, waitForPairing, fetchState, TV_STORAGE_KEY } from '/js/api.js';
+        import { createPairCode, waitForPairing, TV_STORAGE_KEY } from '/js/api.js';
         import { applyI18n, strings, browserLang } from '/js/i18n.js';
 
         const $ = (id) => document.getElementById(id);
@@ -42,9 +41,6 @@
 
         function remember(key) {
             try { localStorage.setItem(TV_STORAGE_KEY, key); } catch { /* storage unavailable */ }
-        }
-        function stored() {
-            try { return localStorage.getItem(TV_STORAGE_KEY); } catch { return null; }
         }
 
         function go(key) {
@@ -78,19 +74,6 @@
             if (expiresAt && left === 0) { expiresAt = 0; newCode(); }
         }
         setInterval(tick, 1000);
-
-        // Offer the last screen this TV showed, if it is still active.
-        const last = stored();
-        if (last) {
-            fetchState(last).then((r) => {
-                if (!r.ok) return;
-                const btn = $('continue');
-                btn.textContent = r.data.state.club ? `${s.tvContinue}: ${r.data.state.club}` : s.tvContinue;
-                btn.hidden = false;
-                btn.focus();
-                btn.addEventListener('click', () => location.replace(`/${last}/`));
-            }).catch(() => {});
-        }
 
         newCode();
     </script>

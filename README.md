@@ -26,7 +26,6 @@ Det enklaste sättet, utan att skriva in någon lång adress på TV:n:
 3. Öppna admin på mobilen, scrolla ner till **Koppla skärm** och skriv in koden. TV:n byter direkt till din high hand.
 
 Koden gäller i 10 minuter och kan bara användas en gång.
-Om TV:ns senaste skärm fortfarande är aktiv visar `highhand.se/tv` en knapp för att fortsätta till den.
 När en nyckel går ut återgår TV:n automatiskt till kodsidan.
 
 Det fungerar också att öppna skärmlänken direkt i valfri webbläsare och visa den i fullskärm.

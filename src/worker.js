@@ -98,6 +98,36 @@ async function handleBackground(request, stub) {
   return json({ error: 'method_not_allowed' }, 405);
 }
 
+// ---- ntfy notification when a session is created ----
+// Configure with secrets (never in the repo):
+//   NTFY_URL   = https://ntfy.example.com/<topic>
+//   NTFY_TOKEN = access token (optional, for protected topics)
+// The key is deliberately not included: it grants admin access.
+async function notifyNewSession(env, request, { club, lang }) {
+  if (!env.NTFY_URL) return;
+  try {
+    const target = new URL(env.NTFY_URL);
+    const topic = target.pathname.replace(/^\/+|\/+$/g, '');
+    if (!topic) return;
+    const origin = new URL(request.url).origin;
+    const country = request.cf?.country ? ` · ${request.cf.country}` : '';
+    const body = {
+      topic,
+      title: 'Ny High Hand-session',
+      message: `${club || '(inget klubbnamn)'}\nSpråk: ${lang === 'en' ? 'engelska' : 'svenska'}${country}`,
+      tags: ['spades'],
+      click: `${origin}/dashboard/`,
+    };
+    const headers = { 'Content-Type': 'application/json' };
+    if (env.NTFY_TOKEN) headers.Authorization = `Bearer ${env.NTFY_TOKEN}`;
+    // ntfy's JSON API is posted to the server root, which keeps UTF-8 (å, ä, ö) intact.
+    const res = await fetch(target.origin + '/', { method: 'POST', headers, body: JSON.stringify(body) });
+    if (!res.ok) console.error('ntfy failed', res.status);
+  } catch (e) {
+    console.error('ntfy error', e);
+  }
+}
+
 /** Uniform 6-digit code, e.g. "048213". */
 function newCode() {
   const buf = new Uint32Array(1);
@@ -148,7 +178,7 @@ async function handlePair(request, env, parts) {
   return json({ error: 'method_not_allowed' }, 405);
 }
 
-async function handleApi(request, env, parts) {
+async function handleApi(request, env, parts, ctx) {
   const method = request.method;
 
   if (parts[1] === 'pair') return handlePair(request, env, parts);
@@ -168,7 +198,11 @@ async function handleApi(request, env, parts) {
     for (let attempt = 0; attempt < 3; attempt++) {
       const key = newKey();
       const state = await stubFor(env, key).init(key, lang, club);
-      if (state) return json({ key, expiresAt: state.expiresAt }, 201);
+      if (state) {
+        // Fire-and-forget: a failing notification must never block creating a session.
+        ctx?.waitUntil(notifyNewSession(env, request, { club, lang }));
+        return json({ key, expiresAt: state.expiresAt }, 201);
+      }
     }
     return json({ error: 'try_again' }, 503);
   }
@@ -272,7 +306,7 @@ async function notFound(request, env) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const parts = url.pathname.split('/').filter(Boolean);
 
@@ -282,7 +316,7 @@ export default {
     // The raw asset must never be reachable without the auth check above.
     if (url.pathname.startsWith('/dashboard')) return notFound(request, env);
 
-    if (parts[0] === 'api') return handleApi(request, env, parts);
+    if (parts[0] === 'api') return handleApi(request, env, parts, ctx);
 
     if (parts.length >= 1 && parts.length <= 2 && KEY_RE.test(parts[0])) {
       const isAdmin = parts.length === 2;

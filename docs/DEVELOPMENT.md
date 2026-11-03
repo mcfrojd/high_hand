@@ -65,3 +65,18 @@ npx wrangler secret put DASHBOARD_PASSWORD
 ```
 
 Logga in med användarnamnet `admin` och lösenordet.
+
+## Notis vid ny session (ntfy)
+
+Workern kan skicka en notis till en [ntfy](https://ntfy.sh)-server varje gång en ny session skapas.
+Notisen innehåller klubbnamn, språk och land. Nyckeln skickas inte med, eftersom den ger åtkomst till admin.
+Notisen skickas i bakgrunden, så ett fel hos ntfy påverkar aldrig att sessionen skapas.
+
+Funktionen aktiveras med Secrets på Workern under **Settings → Variables and Secrets**, inte under Build:
+
+| Namn | Värde |
+|---|---|
+| `NTFY_URL` | `https://<din-ntfy-server>/<topic>` |
+| `NTFY_TOKEN` | Åtkomsttoken (`tk_…`). Behövs bara om topicen är skyddad. |
+
+Om `NTFY_URL` saknas skickas ingen notis.
