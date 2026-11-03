@@ -1,6 +1,7 @@
 import { cleanLang, cleanText, ValidationError } from './model.js';
 
 export { HighHandSession } from './session.js';
+export { Registry } from './registry.js';
 
 const KEY_RE = /^[A-Za-z0-9]{12}$/;
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -74,7 +75,7 @@ async function handleApi(request, env, parts) {
     }
     for (let attempt = 0; attempt < 3; attempt++) {
       const key = newKey();
-      const state = await stubFor(env, key).init(lang, club);
+      const state = await stubFor(env, key).init(key, lang, club);
       if (state) return json({ key, expiresAt: state.expiresAt }, 201);
     }
     return json({ error: 'try_again' }, 503);
@@ -112,6 +113,57 @@ async function handleApi(request, env, parts) {
   return json({ error: 'not_found' }, 404);
 }
 
+// ---- Private dashboard (Basic Auth, password from the DASHBOARD_PASSWORD secret) ----
+
+async function sha256(text) {
+  return crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+}
+
+/** Returns null when authorised, otherwise the Response to send. */
+async function requireAuth(request, env) {
+  if (!env.DASHBOARD_PASSWORD) return new Response('Not found', { status: 404 });
+  const header = request.headers.get('Authorization') || '';
+  let user = '';
+  let pass = '';
+  if (header.startsWith('Basic ')) {
+    try {
+      const bytes = Uint8Array.from(atob(header.slice(6)), (c) => c.charCodeAt(0));
+      const decoded = new TextDecoder().decode(bytes);
+      const i = decoded.indexOf(':');
+      if (i >= 0) {
+        user = decoded.slice(0, i);
+        pass = decoded.slice(i + 1);
+      }
+    } catch {
+      // malformed header -> unauthorised
+    }
+  }
+  const [a, b] = await Promise.all([sha256(`admin:${env.DASHBOARD_PASSWORD}`), sha256(`${user}:${pass}`)]);
+  if (crypto.subtle.timingSafeEqual(a, b)) return null;
+  return new Response('Authentication required', {
+    status: 401,
+    headers: {
+      'WWW-Authenticate': 'Basic realm="highhand-dashboard", charset="UTF-8"',
+      'Cache-Control': 'no-store',
+      'X-Robots-Tag': 'noindex',
+    },
+  });
+}
+
+async function handleDashboard(request, env, url) {
+  const denied = await requireAuth(request, env);
+  if (denied) return denied;
+  if (url.pathname === '/api/dashboard/sessions') {
+    if (request.method !== 'GET') return json({ error: 'method_not_allowed' }, 405);
+    const registry = env.REGISTRY.get(env.REGISTRY.idFromName('global'));
+    return json(await registry.list(Date.now()));
+  }
+  if (url.pathname === '/dashboard') return Response.redirect(`${url.origin}/dashboard/`, 301);
+  const res = await servePage(request, env, '/dashboard');
+  res.headers.set('Cache-Control', 'no-store');
+  return res;
+}
+
 async function servePage(request, env, assetPath) {
   const url = new URL(assetPath, request.url);
   const res = await env.ASSETS.fetch(new Request(url, { method: 'GET' }));
@@ -130,6 +182,12 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const parts = url.pathname.split('/').filter(Boolean);
+
+    if (url.pathname === '/dashboard' || url.pathname === '/dashboard/' || url.pathname === '/api/dashboard/sessions') {
+      return handleDashboard(request, env, url);
+    }
+    // The raw asset must never be reachable without the auth check above.
+    if (url.pathname.startsWith('/dashboard')) return notFound(request, env);
 
     if (parts[0] === 'api') return handleApi(request, env, parts);
 

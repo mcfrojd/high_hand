@@ -12,8 +12,14 @@
     "run_worker_first": ["/*", "!/images/*", "!/css/*", "!/js/*"]
   },
   "durable_objects": {
-    "bindings": [{ "name": "SESSIONS", "class_name": "HighHandSession" }]
+    "bindings": [
+      { "name": "SESSIONS", "class_name": "HighHandSession" },
+      { "name": "REGISTRY", "class_name": "Registry" }
+    ]
   },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["HighHandSession"] }],
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["HighHandSession"] },
+    { "tag": "v2", "new_sqlite_classes": ["Registry"] }
+  ],
   "observability": { "enabled": true }
 }
