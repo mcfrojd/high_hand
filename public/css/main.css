@@ -98,16 +98,24 @@ body {
 }
 
 #antalDisplay {
-    width: min(15vh, 17vw);
-    height: min(15vh, 17vw);
+    /* Rounded rectangle: fixed height, width grows with the number of digits. */
+    box-sizing: border-box;
+    height: min(13vh, 15vw);
+    min-width: min(13vh, 15vw);
+    width: auto;
+    padding: 0 min(2.2vh, 2.5vw);
     background-color: #f5b411;
-    border-radius: 50%;
+    border-radius: min(1.6vh, 1.8vw);
     border: 2px solid black;
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: min(12vw, 12vh);
+    font-size: min(10vh, 11.5vw);
     font-weight: bold;
+    line-height: 1;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
     color: black;
     text-shadow: 2px 2px 4px rgb(255, 255, 255);
     margin-left: 20px;
