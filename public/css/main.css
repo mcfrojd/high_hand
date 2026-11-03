@@ -230,6 +230,6 @@ body::before {
     height: 5.5vh;
     width: auto;
     opacity: 0.55;
-    z-index: 2;
+    z-index: 0; /* above the background (-1), below the page text (1) */
     pointer-events: none;
 }
