@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="sv">
+
+<head>
+    <meta charset="UTF-8">
+    <title>HH ADMIN</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#2d2d2d">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <link rel="icon" href="/images/misc/icon-192.png">
+    <link rel="apple-touch-icon" href="/images/misc/icon-192.png">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+
+<body>
+    <header class="header">
+        <a href="/"><img src="/images/misc/logo.png" alt="High Hand" class="logo"></a>
+        <h1 class="title"><span>High Hand Admin</span><small id="clubTitle"></small></h1>
+        <button class="hamburger-btn" id="menuButton" aria-label="Meny" aria-controls="menuOverlay" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </header>
+
+    <div id="menuOverlay" class="menu-overlay" role="dialog" aria-labelledby="settingsTitle">
+        <button id="closeMenu" class="close-btn" aria-label="Stäng">&times;</button>
+        <div class="menu-content">
+            <h2 id="settingsTitle" data-i18n="settings">Inställningar</h2>
+            <label for="club" data-i18n="club">Klubbnamn</label>
+            <input type="text" id="club" maxlength="40" autocomplete="off">
+            <label for="lang" data-i18n="language">Språk</label>
+            <select id="lang">
+                <option value="sv">Svenska</option>
+                <option value="en">English</option>
+            </select>
+            <label for="background" data-i18n="background">Bakgrund</label>
+            <select id="background"></select>
+            <button id="saveSettings" class="btn" data-i18n="save">Spara</button>
+
+            <hr>
+            <p class="small" data-i18n="displayLink">Skärmlänk</p>
+            <div class="link-row">
+                <code id="displayLink"></code>
+                <button class="btn small-btn" data-copy="displayLink" data-i18n="copy">Kopiera</button>
+            </div>
+            <p class="small" data-i18n="adminLink">Adminlänk</p>
+            <div class="link-row">
+                <code id="adminLink"></code>
+                <button class="btn small-btn" data-copy="adminLink" data-i18n="copy">Kopiera</button>
+            </div>
+            <p class="small"><span data-i18n="expiresAt">Nyckeln upphör</span>: <strong id="expiresAt"></strong></p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="grid" id="form">
+            <div id="cardRows"></div>
+            <div class="row">
+                <div class="cell three-quarters">
+                    <label for="hand" data-i18n="hand">Hand</label>
+                    <select id="hand"></select>
+                </div>
+                <div class="cell quarter">
+                    <label for="antal" data-i18n="count">Antal</label>
+                    <input type="text" id="antal" inputmode="numeric" maxlength="4" autocomplete="off">
+                </div>
+            </div>
+            <div class="row">
+                <div class="cell full-width">
+                    <label for="namn" data-i18n="holder">Innehavare</label>
+                    <input type="text" id="namn" maxlength="40" autocomplete="off">
+                </div>
+            </div>
+            <div class="row">
+                <div class="cell full-width button-container">
+                    <button id="resetButton" class="btn" data-i18n="reset">Återställ</button>
+                    <span id="status" class="status" role="status"></span>
+                    <button id="saveButton" class="btn primary" data-i18n="save">Spara</button>
+                </div>
+            </div>
+        </div>
+        <div class="expired" id="expired" hidden>
+            <p data-i18n="expired">Nyckeln har gått ut eller finns inte.</p>
+            <p><span data-i18n="createNew">Skapa en ny nyckel på</span> <a href="/" id="homeLink"></a></p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { getKey, fetchState, saveState, links, copyText, removeOldServiceWorkers } from '/js/api.js';
+        import { applyI18n, strings, formatTime } from '/js/i18n.js';
+
+        const CARD_VALUES = ['a', 'k', 'q', 'j', '10', '9', '8', '7', '6', '5', '4', '3', '2', 'nn'];
+        const SUITS = ['h', 'r', 'k', 's'];
+        const HANDS = ['royal_flush', 'straight_flush', 'four_kind', 'full_house', 'flush',
+            'straight', 'three_kind', 'two_pair', 'pair', 'side_pot'];
+        const BACKGROUNDS = ['table.jpg', 'room.jpg'];
+
+        const $ = (id) => document.getElementById(id);
+        const key = getKey();
+        let state = null;
+        let statusTimer;
+
+        removeOldServiceWorkers();
+        $('homeLink').textContent = location.host;
+
+        // --- build form ---
+        const cardRows = $('cardRows');
+        for (let i = 1; i <= 5; i++) {
+            const row = document.createElement('div');
+            row.className = 'row';
+            for (const [kind, labelKey] of [['kort', 'value'], ['farg', 'suit']]) {
+                const cell = document.createElement('div');
+                cell.className = 'cell half';
+                const label = document.createElement('label');
+                label.htmlFor = `${kind}${i}`;
+                label.dataset.cardLabel = `${i}:${labelKey}`;
+                const select = document.createElement('select');
+                select.id = `${kind}${i}`;
+                cell.append(label, select);
+                row.appendChild(cell);
+            }
+            cardRows.appendChild(row);
+        }
+        cardRows.style.display = 'contents';
+
+        function fillSelect(select, values, labelFn) {
+            const selected = select.value;
+            select.replaceChildren(...values.map((v) => {
+                const o = document.createElement('option');
+                o.value = v;
+                o.textContent = labelFn(v);
+                return o;
+            }));
+            if (selected) select.value = selected;
+        }
+
+        function translate(lang) {
+            const s = strings(lang);
+            applyI18n(lang);
+            for (const label of document.querySelectorAll('[data-card-label]')) {
+                const [n, k] = label.dataset.cardLabel.split(':');
+                label.textContent = `${s.card} ${n} - ${s[k]}`;
+            }
+            for (let i = 1; i <= 5; i++) {
+                fillSelect($(`kort${i}`), CARD_VALUES, (v) => s.values[v] || v);
+                fillSelect($(`farg${i}`), SUITS, (v) => s.suits[v]);
+            }
+            fillSelect($('hand'), HANDS, (v) => s.hands[v]);
+            fillSelect($('background'), BACKGROUNDS, (v) => s.backgrounds[v] || v);
+            $('namn').placeholder = s.registered;
+        }
+
+        function populate(st) {
+            state = st;
+            translate(st.lang);
+            st.cards.forEach((card, idx) => {
+                const i = idx + 1;
+                if (card === 'nn') {
+                    $(`kort${i}`).value = 'nn';
+                } else {
+                    $(`kort${i}`).value = card.slice(0, -1);
+                    $(`farg${i}`).value = card.slice(-1);
+                }
+            });
+            $('hand').value = st.hand;
+            $('namn').value = st.holder;
+            $('antal').value = st.count;
+            $('club').value = st.club;
+            $('lang').value = st.lang;
+            $('background').value = st.background;
+            $('clubTitle').textContent = st.club;
+            $('expiresAt').textContent = formatTime(st.expiresAt, st.lang);
+            const l = links(key);
+            $('displayLink').textContent = l.display;
+            $('adminLink').textContent = l.admin;
+            document.title = st.club ? `${st.club} – HH Admin` : 'HH Admin';
+        }
+
+        function syncSuitEnabled() {
+            for (let i = 1; i <= 5; i++) $(`farg${i}`).disabled = $(`kort${i}`).value === 'nn';
+        }
+
+        function setStatus(text, kind) {
+            clearTimeout(statusTimer);
+            const el = $('status');
+            el.textContent = text;
+            el.className = `status ${kind || ''}`;
+            if (kind === 'ok') statusTimer = setTimeout(() => { el.textContent = ''; }, 3000);
+        }
+
+        function showExpired() {
+            $('form').hidden = true;
+            $('expired').hidden = false;
+            $('menuButton').hidden = true;
+        }
+
+        function collect() {
+            const cards = [];
+            for (let i = 1; i <= 5; i++) {
+                const v = $(`kort${i}`).value;
+                cards.push(v === 'nn' ? 'nn' : v + $(`farg${i}`).value);
+            }
+            return {
+                cards,
+                hand: $('hand').value,
+                holder: $('namn').value,
+                count: $('antal').value,
+                club: $('club').value,
+                lang: $('lang').value,
+                background: $('background').value,
+            };
+        }
+
+        async function save(patch = collect()) {
+            const s = strings(state?.lang);
+            setStatus(s.saving);
+            $('saveButton').disabled = true;
+            try {
+                const r = await saveState(key, patch);
+                if (r.status === 404) return showExpired();
+                if (!r.ok) {
+                    setStatus(r.data.error === 'invalid' ? `${s.invalid} (${r.data.field})` : s.saveFailed, 'error');
+                    return;
+                }
+                populate(r.data.state);
+                syncSuitEnabled();
+                setStatus(strings(r.data.state.lang).saved, 'ok');
+            } catch {
+                setStatus(s.saveFailed, 'error');
+            } finally {
+                $('saveButton').disabled = false;
+            }
+        }
+
+        // --- events ---
+        for (let i = 1; i <= 5; i++) $(`kort${i}`).addEventListener('change', syncSuitEnabled);
+        $('saveButton').addEventListener('click', () => save());
+        $('saveSettings').addEventListener('click', async () => {
+            await save();
+            closeMenu();
+        });
+        $('resetButton').addEventListener('click', () => {
+            save({ cards: ['nn', 'nn', 'nn', 'nn', 'nn'], hand: 'side_pot', holder: '', count: '0' });
+        });
+        $('lang').addEventListener('change', () => translate($('lang').value));
+
+        const openMenu = () => {
+            $('menuOverlay').classList.add('active');
+            $('menuButton').setAttribute('aria-expanded', 'true');
+        };
+        const closeMenu = () => {
+            $('menuOverlay').classList.remove('active');
+            $('menuButton').setAttribute('aria-expanded', 'false');
+        };
+        $('menuButton').addEventListener('click', () => {
+            $('menuOverlay').classList.contains('active') ? closeMenu() : openMenu();
+        });
+        $('closeMenu').addEventListener('click', closeMenu);
+
+        for (const btn of document.querySelectorAll('[data-copy]')) {
+            btn.addEventListener('click', async () => {
+                if (await copyText($(btn.dataset.copy).textContent)) {
+                    const s = strings(state?.lang);
+                    btn.textContent = s.copied;
+                    setTimeout(() => { btn.textContent = s.copy; }, 1500);
+                }
+            });
+        }
+
+        // --- load ---
+        translate('sv');
+        if (!key) {
+            location.replace('/');
+        } else {
+            try {
+                const r = await fetchState(key);
+                if (r.ok) {
+                    populate(r.data.state);
+                    syncSuitEnabled();
+                } else {
+                    showExpired();
+                }
+            } catch {
+                setStatus(strings('sv').saveFailed, 'error');
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="sv">
+
+<head>
+    <meta charset="UTF-8">
+    <title>HIGH HAND</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" href="/images/misc/icon-192.png">
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+
+<body>
+    <div class="container" id="board" hidden>
+        <div class="club" id="clubName" hidden></div>
+        <div class="title" data-i18n="title">Kvällens high hand</div>
+        <div id="imageContainer"></div>
+        <div id="handContainer"></div>
+        <div id="innehavareRow">
+            <div id="innehavareContainer"></div>
+            <div id="antalDisplay"></div>
+        </div>
+    </div>
+    <div class="message" id="message">
+        <p id="messageText" data-i18n="connecting">Ansluter…</p>
+        <p id="messageLink" hidden><span data-i18n="createNew">Skapa en ny nyckel på</span> <a href="/" id="homeLink"></a></p>
+    </div>
+    <div id="offline" class="offline" hidden></div>
+
+    <script type="module">
+        import { getKey, connect } from '/js/api.js';
+        import { applyI18n, strings } from '/js/i18n.js';
+
+        const key = getKey();
+        const $ = (id) => document.getElementById(id);
+        let lang = 'sv';
+        let current = null;
+        applyI18n(lang);
+        $('homeLink').textContent = location.host;
+
+        function optimizeTextSize() {
+            const container = $('handContainer');
+            const containerWidth = container.offsetWidth;
+            const containerHeight = container.offsetHeight;
+            if (!containerWidth || !containerHeight) return;
+            let fontSize = containerHeight;
+            container.style.fontSize = fontSize + 'px';
+            while ((container.scrollWidth > containerWidth || container.scrollHeight > containerHeight) && fontSize > 1) {
+                fontSize = fontSize * 0.9;
+                container.style.fontSize = fontSize + 'px';
+            }
+        }
+
+        function render(state) {
+            current = state;
+            lang = state.lang;
+            const s = strings(lang);
+            applyI18n(lang);
+            $('message').hidden = true;
+            $('board').hidden = false;
+
+            document.title = state.club ? `${state.club} – High Hand` : 'High Hand';
+            $('clubName').textContent = state.club || '';
+            $('clubName').hidden = !state.club;
+
+            document.body.style.setProperty('--bg-image', `url("/images/backgrounds/${state.background}")`);
+
+            const container = $('imageContainer');
+            container.replaceChildren(...state.cards.map((card, i) => {
+                const wrap = document.createElement('div');
+                wrap.className = 'image-wrapper';
+                const img = document.createElement('img');
+                img.src = `/images/cards/${card}.png`;
+                img.alt = `${s.card} ${i + 1}`;
+                wrap.appendChild(img);
+                return wrap;
+            }));
+
+            $('handContainer').textContent = s.hands[state.hand] || '';
+            optimizeTextSize();
+            $('innehavareContainer').textContent = state.holder || s.registered;
+            $('antalDisplay').textContent = state.count || '0';
+        }
+
+        function showExpired() {
+            applyI18n(lang);
+            $('board').hidden = true;
+            $('message').hidden = false;
+            $('messageText').textContent = strings(lang).expired;
+            $('messageLink').hidden = false;
+        }
+
+        new ResizeObserver(optimizeTextSize).observe($('handContainer'));
+
+        if (!key) {
+            location.replace('/');
+        } else {
+            connect(key, {
+                onState: render,
+                onExpired: showExpired,
+                onStatus: (status) => { $('offline').hidden = status !== 'offline'; },
+            });
+        }
+    </script>
+</body>
+
+</html>

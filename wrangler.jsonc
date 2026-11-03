@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "highhand",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    // The Worker handles /api/* and /<key>/ + /<key>/admin/. Static files
+    // (images, css, js) are served directly without invoking the Worker.
+    "run_worker_first": ["/*", "!/images/*", "!/css/*", "!/js/*"]
+  },
+  "durable_objects": {
+    "bindings": [{ "name": "SESSIONS", "class_name": "HighHandSession" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["HighHandSession"] }],
+  "observability": { "enabled": true }
+}
