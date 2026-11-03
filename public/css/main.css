@@ -221,3 +221,15 @@ body::before {
     text-shadow: 3px 3px 6px rgba(0, 0, 0);
     overflow-wrap: anywhere;
 }
+
+/* McFrojd Softwares watermark, bottom left */
+.watermark {
+    position: fixed;
+    left: 1.2vw;
+    bottom: 1.2vh;
+    height: 5.5vh;
+    width: auto;
+    opacity: 0.55;
+    z-index: 2;
+    pointer-events: none;
+}

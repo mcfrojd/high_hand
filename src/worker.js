@@ -1,4 +1,5 @@
 import { cleanLang, cleanText, ValidationError, MAX_BG_BYTES } from './model.js';
+import pkg from '../package.json';
 
 export { HighHandSession } from './session.js';
 export { Registry } from './registry.js';
@@ -188,6 +189,17 @@ async function handleApi(request, env, parts, ctx) {
   const method = request.method;
 
   if (parts[1] === 'pair') return handlePair(request, env, parts);
+
+  // GET /api/version: app version + Cloudflare version ID of this deployment.
+  if (parts.length === 2 && parts[1] === 'version') {
+    const meta = env.CF_VERSION_METADATA || {};
+    return json({
+      version: pkg.version,
+      id: meta.id || null,
+      tag: meta.tag || null,
+      deployedAt: meta.timestamp || null,
+    });
+  }
 
   // POST /api/session
   if (parts.length === 2 && parts[1] === 'session') {

@@ -23,5 +23,7 @@
     { "tag": "v2", "new_sqlite_classes": ["Registry"] },
     { "tag": "v3", "new_sqlite_classes": ["Pairing"] }
   ],
+  // Lets the Worker report its own version ID (same as in Cloudflare → Deployments).
+  "version_metadata": { "binding": "CF_VERSION_METADATA" },
   "observability": { "enabled": true }
 }

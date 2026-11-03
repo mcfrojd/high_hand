@@ -141,10 +141,13 @@
         </div>
     </main>
 
+    <footer class="site-footer" id="siteFooter"></footer>
+
     <script src="/js/vendor/qrcode.js"></script>
     <script type="module">
         import { getKey, fetchState, saveState, links, copyText, removeOldServiceWorkers, pairScreen, parseCode, shareLink, showQr, uploadBackground, deleteBackground, backgroundUrl } from '/js/api.js';
         import { applyI18n, strings, formatTime } from '/js/i18n.js';
+        import { renderFooter } from '/js/footer.js';
         import { CARD_VALUES, SUITS, evaluateHand, isTaken, isValueFullyTaken, pickSuit, isRealHand } from '/js/cards.js';
 
         const HANDS = ['royal_flush', 'straight_flush', 'four_kind', 'full_house', 'flush',
@@ -225,9 +228,14 @@
             $('pregameState').textContent = text;
         }
 
+        let footerLang = null;
         function populate(st) {
             state = st;
             translate(st.lang);
+            if (footerLang !== st.lang) {
+                footerLang = st.lang;
+                renderFooter($('siteFooter'), st.lang);
+            }
             syncMessage(st);
             st.cards.forEach((card, idx) => {
                 const i = idx + 1;

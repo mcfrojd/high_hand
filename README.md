@@ -101,5 +101,5 @@ Bilden förminskas automatiskt, och en ny uppladdning ersätter den förra. Bild
 
 ## Om projektet
 
-Byggd av **McFrojd Software**.
+Byggd av **McFrojd Softwares**.
 Teknisk dokumentation för utveckling och drift finns i [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).

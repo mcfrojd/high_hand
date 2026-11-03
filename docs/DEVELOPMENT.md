@@ -81,3 +81,12 @@ Funktionen aktiveras med Secrets på Workern under **Settings → Variables and 
 | `NTFY_TOKEN` | Åtkomsttoken (`tk_…`). Behövs bara om topicen är skyddad. |
 
 Om `NTFY_URL` saknas skickas ingen notis.
+
+## Version
+
+Sidfoten på startsidan och admin visar till exempel `v2.1.0 (b5db583e)`.
+- `2.1.0` är `version` i `package.json`. Den höjs vid varje release.
+- Koden inom parentes är början på Cloudflares **Version ID** för den driftsatta Workern, via bindningen `CF_VERSION_METADATA` i `wrangler.jsonc`. Den ska stämma med den översta raden under **Deployments** i Cloudflare.
+- Håll muspekaren över versionen för att se när den driftsattes och hela Version ID:t.
+
+`GET /api/version` returnerar samma uppgifter som JSON.
