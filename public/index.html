@@ -10,6 +10,7 @@
     <link rel="icon" href="/images/misc/icon-192.png">
     <link rel="apple-touch-icon" href="/images/misc/icon-192.png">
     <link rel="stylesheet" href="/css/start.css">
+    <link rel="stylesheet" href="/css/qr.css">
 </head>
 
 <body>
@@ -44,6 +45,7 @@
                     <a id="displayLink" target="_blank" rel="noopener"></a>
                     <button type="button" class="btn" data-copy="displayLink" data-i18n="copy">Kopiera</button>
                     <button type="button" class="btn" data-share="displayLink" data-i18n="share">Dela</button>
+                    <button type="button" class="btn" data-qr="displayLink" data-i18n="qr">QR-kod</button>
                 </div>
             </div>
             <div class="link-block">
@@ -52,13 +54,9 @@
                     <a id="adminLink"></a>
                     <button type="button" class="btn" data-copy="adminLink" data-i18n="copy">Kopiera</button>
                     <button type="button" class="btn" data-share="adminLink" data-i18n="share">Dela</button>
+                    <button type="button" class="btn" data-qr="adminLink" data-i18n="qr">QR-kod</button>
                 </div>
             </div>
-            <div class="qr-row">
-                <figure><div class="qr" id="displayQr"></div><figcaption data-i18n="displayLink">Skärmlänk</figcaption></figure>
-                <figure><div class="qr" id="adminQr"></div><figcaption data-i18n="adminLink">Adminlänk</figcaption></figure>
-            </div>
-            <p class="small" data-i18n="qrHint">Skanna för att öppna på en annan enhet</p>
             <p class="small tv-hint"><span data-i18n="pairHelp">Öppna highhand.se/tv på TV:n och skriv in koden som visas där.</span></p>
             <p class="small"><span data-i18n="expiresAt">Nyckeln upphör</span>: <strong id="expiresAt"></strong></p>
         </section>
@@ -76,7 +74,7 @@
 
     <script src="/js/vendor/qrcode.js"></script>
     <script type="module">
-        import { createSession, links, parseKey, copyText, removeOldServiceWorkers, shareLink, renderQr } from '/js/api.js';
+        import { createSession, links, parseKey, copyText, removeOldServiceWorkers, shareLink, showQr } from '/js/api.js';
         import { applyI18n, strings, browserLang, formatTime } from '/js/i18n.js';
 
         const $ = (id) => document.getElementById(id);
@@ -119,8 +117,6 @@
             $('adminLink').href = l.admin;
             $('adminLink').textContent = l.admin;
             $('expiresAt').textContent = formatTime(r.expiresAt, lang);
-            renderQr($('displayQr'), l.display);
-            renderQr($('adminQr'), l.admin);
             $('result').hidden = false;
             $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -169,6 +165,14 @@
             }
             location.href = links(key).admin;
         });
+
+        for (const btn of document.querySelectorAll('[data-qr]')) {
+            btn.addEventListener('click', () => {
+                const s = strings(lang);
+                const label = btn.dataset.qr === 'displayLink' ? s.displayLink : s.adminLink;
+                showQr($(btn.dataset.qr).textContent, label, { close: s.close, hint: s.qrHint });
+            });
+        }
 
         for (const btn of document.querySelectorAll('[data-share]')) {
             btn.addEventListener('click', async () => {

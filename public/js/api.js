@@ -246,3 +246,36 @@ export function renderQr(el, text) {
   const svg = el.querySelector('svg');
   if (svg) svg.setAttribute('role', 'img');
 }
+
+/** Show one large QR code in a modal dialog. */
+export function showQr(url, title, { close = 'Stäng', hint = '' } = {}) {
+  let dlg = document.getElementById('qrDialog');
+  if (!dlg) {
+    dlg = document.createElement('dialog');
+    dlg.id = 'qrDialog';
+    dlg.className = 'qr-dialog';
+    const h = document.createElement('h2');
+    const box = document.createElement('div');
+    box.className = 'qr-big';
+    const link = document.createElement('p');
+    link.className = 'qr-url';
+    const p = document.createElement('p');
+    p.className = 'qr-hint';
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn qr-close';
+    btn.addEventListener('click', () => dlg.close());
+    dlg.append(h, box, link, p, btn);
+    // Click on the backdrop closes the dialog.
+    dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+    document.body.appendChild(dlg);
+  }
+  dlg.querySelector('h2').textContent = title;
+  renderQr(dlg.querySelector('.qr-big'), url);
+  dlg.querySelector('.qr-big svg')?.setAttribute('aria-label', `QR: ${url}`);
+  dlg.querySelector('.qr-url').textContent = url;
+  dlg.querySelector('.qr-hint').textContent = hint;
+  dlg.querySelector('.qr-close').textContent = close;
+  if (typeof dlg.showModal === 'function') dlg.showModal();
+  else dlg.setAttribute('open', '');
+}
