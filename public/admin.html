@@ -40,54 +40,81 @@
 
             <hr>
             <p class="small" data-i18n="displayLink">Skärmlänk</p>
-            <div class="link-row">
-                <code id="displayLink"></code>
-                <button class="btn small-btn" data-copy="displayLink" data-i18n="copy">Kopiera</button>
-            </div>
+            <div class="qr" id="displayQr" aria-label="QR"></div>
             <p class="small" data-i18n="adminLink">Adminlänk</p>
             <div class="link-row">
                 <code id="adminLink"></code>
                 <button class="btn small-btn" data-copy="adminLink" data-i18n="copy">Kopiera</button>
+                <button class="btn small-btn" data-share="adminLink" data-i18n="share">Dela</button>
             </div>
+            <div class="qr" id="adminQr" aria-label="QR"></div>
+            <p class="small" data-i18n="qrHint">Skanna för att öppna på en annan enhet</p>
             <p class="small"><span data-i18n="expiresAt">Nyckeln upphör</span>: <strong id="expiresAt"></strong></p>
         </div>
     </div>
 
-    <div class="container">
-        <div class="grid" id="form">
-            <div id="cardRows"></div>
-            <div class="row">
-                <div class="cell three-quarters">
-                    <label for="hand" data-i18n="hand">Hand</label>
-                    <select id="hand"></select>
-                </div>
-                <div class="cell quarter">
-                    <label for="antal" data-i18n="count">Antal</label>
-                    <input type="text" id="antal" inputmode="numeric" maxlength="4" autocomplete="off">
+    <main class="hh">
+        <div id="form" class="hh-form">
+            <div class="field">
+                <label for="namn" data-i18n="playerName">Spelarnamn</label>
+                <input type="text" id="namn" maxlength="40" autocomplete="off" data-i18n-placeholder="playerPlaceholder">
+            </div>
+
+            <div class="field">
+                <label for="antal" data-i18n="participants">Antal deltagare</label>
+                <div class="stepper">
+                    <button type="button" id="countMinus" aria-label="−1">−</button>
+                    <input type="text" id="antal" inputmode="numeric" maxlength="4" autocomplete="off" value="0">
+                    <button type="button" id="countPlus" aria-label="+1">+</button>
                 </div>
             </div>
-            <div class="row">
-                <div class="cell full-width">
-                    <label for="namn" data-i18n="holder">Innehavare</label>
-                    <input type="text" id="namn" maxlength="40" autocomplete="off">
-                </div>
+
+            <div class="field">
+                <span class="label" data-i18n="cardsLabel">Kort (5 st)</span>
+                <div id="cardRows" class="card-rows"></div>
             </div>
-            <div class="row">
-                <div class="cell full-width button-container">
-                    <button id="resetButton" class="btn" data-i18n="reset">Återställ</button>
-                    <span id="status" class="status" role="status"></span>
-                    <button id="saveButton" class="btn primary" data-i18n="save">Spara</button>
-                </div>
+
+            <label for="hand" class="sr-only" data-i18n="hand">Hand</label>
+            <select id="hand" class="hand-box"></select>
+
+            <div class="actions">
+                <button type="button" id="saveButton" class="btn-save">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm2 0v5h8V3M7 21v-7h10v7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+                    <span data-i18n="saveHand">Spara ny högsta hand</span>
+                </button>
+                <button type="button" id="resetButton" class="btn-reset">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.9-4M4 4v4h4M4 13a8 8 0 0 0 14.9 4M20 20v-4h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span data-i18n="resetShort">Reset</span>
+                </button>
             </div>
+            <p id="status" class="status" role="status"></p>
+
+            <section class="screen-box">
+                <h2 data-i18n="pairTitle">Koppla skärm</h2>
+                <p class="small" data-i18n="pairHelp">Öppna highhand.se/tv på TV:n och skriv in koden som visas där.</p>
+                <form id="pairForm" class="pair-form">
+                    <input type="text" id="pairCode" inputmode="numeric" autocomplete="one-time-code" maxlength="7"
+                        placeholder="123 456" aria-label="Kod från TV:n">
+                    <button type="submit" class="btn primary" id="pairButton" data-i18n="pairButton">Koppla</button>
+                </form>
+                <p class="small pair-status" id="pairStatus" role="status"></p>
+                <p class="small" data-i18n="displayLink">Skärmlänk</p>
+                <div class="link-row">
+                    <code id="displayLink"></code>
+                    <button class="btn small-btn" data-copy="displayLink" data-i18n="copy">Kopiera</button>
+                    <button class="btn small-btn" data-share="displayLink" data-i18n="share">Dela</button>
+                </div>
+            </section>
         </div>
         <div class="expired" id="expired" hidden>
             <p data-i18n="expired">Nyckeln har gått ut eller finns inte.</p>
             <p><span data-i18n="createNew">Skapa en ny nyckel på</span> <a href="/" id="homeLink"></a></p>
         </div>
-    </div>
+    </main>
 
+    <script src="/js/vendor/qrcode.js"></script>
     <script type="module">
-        import { getKey, fetchState, saveState, links, copyText, removeOldServiceWorkers } from '/js/api.js';
+        import { getKey, fetchState, saveState, links, copyText, removeOldServiceWorkers, pairScreen, parseCode, shareLink, renderQr } from '/js/api.js';
         import { applyI18n, strings, formatTime } from '/js/i18n.js';
         import { CARD_VALUES, SUITS, evaluateHand, isTaken, isValueFullyTaken, pickSuit } from '/js/cards.js';
 
@@ -104,24 +131,29 @@
         $('homeLink').textContent = location.host;
 
         // --- build form ---
+        // \uFE0E = render as text, not as a coloured emoji
+        const SUIT_SYMBOL = { s: '♠\uFE0E', h: '♥\uFE0E', r: '♦\uFE0E', k: '♣\uFE0E' };
+        const RED = new Set(['h', 'r']);
         const cardRows = $('cardRows');
         for (let i = 1; i <= 5; i++) {
             const row = document.createElement('div');
-            row.className = 'row';
-            for (const [kind, labelKey] of [['kort', 'value'], ['farg', 'suit']]) {
-                const cell = document.createElement('div');
-                cell.className = 'cell half';
-                const label = document.createElement('label');
-                label.htmlFor = `${kind}${i}`;
-                label.dataset.cardLabel = `${i}:${labelKey}`;
-                const select = document.createElement('select');
-                select.id = `${kind}${i}`;
-                cell.append(label, select);
-                row.appendChild(cell);
-            }
+            row.className = 'card-row';
+            const num = document.createElement('span');
+            num.className = 'card-num';
+            num.textContent = `${i}.`;
+            const value = document.createElement('select');
+            value.id = `kort${i}`;
+            value.dataset.cardLabel = `${i}:value`;
+            const suit = document.createElement('select');
+            suit.id = `farg${i}`;
+            suit.dataset.cardLabel = `${i}:suit`;
+            const pip = document.createElement('span');
+            pip.className = 'pip';
+            pip.id = `pip${i}`;
+            pip.setAttribute('aria-hidden', 'true');
+            row.append(num, value, suit, pip);
             cardRows.appendChild(row);
         }
-        cardRows.style.display = 'contents';
 
         function fillSelect(select, values, labelFn) {
             const selected = select.value;
@@ -137,17 +169,17 @@
         function translate(lang) {
             const s = strings(lang);
             applyI18n(lang);
-            for (const label of document.querySelectorAll('[data-card-label]')) {
-                const [n, k] = label.dataset.cardLabel.split(':');
-                label.textContent = `${s.card} ${n} - ${s[k]}`;
+            for (const el of document.querySelectorAll('[data-card-label]')) {
+                const [n, k] = el.dataset.cardLabel.split(':');
+                el.setAttribute('aria-label', `${s.card} ${n} – ${s[k]}`);
             }
             for (let i = 1; i <= 5; i++) {
-                fillSelect($(`kort${i}`), CARD_VALUES, (v) => s.values[v] || v);
-                fillSelect($(`farg${i}`), SUITS, (v) => s.suits[v]);
+                fillSelect($(`kort${i}`), CARD_VALUES, (v) => (v === 'nn' ? '–' : v.toUpperCase()));
+                fillSelect($(`farg${i}`), SUITS, (v) => SUIT_SYMBOL[v]);
+                for (const o of $(`farg${i}`).options) o.title = s.suits[o.value];
             }
             fillSelect($('hand'), HANDS, (v) => s.hands[v]);
             fillSelect($('background'), BACKGROUNDS, (v) => s.backgrounds[v] || v);
-            $('namn').placeholder = s.registered;
         }
 
         function populate(st) {
@@ -164,13 +196,17 @@
             });
             $('hand').value = st.hand;
             $('namn').value = st.holder;
-            $('antal').value = st.count;
+            $('antal').value = st.count || '0';
             $('club').value = st.club;
             $('lang').value = st.lang;
             $('background').value = st.background;
             $('clubTitle').textContent = st.club;
             $('expiresAt').textContent = formatTime(st.expiresAt, st.lang);
             const l = links(key);
+            if ($('displayLink').textContent !== l.display) {
+                renderQr($('displayQr'), l.display);
+                renderQr($('adminQr'), l.admin);
+            }
             $('displayLink').textContent = l.display;
             $('adminLink').textContent = l.admin;
             document.title = st.club ? `${st.club} – HH Admin` : 'HH Admin';
@@ -194,7 +230,11 @@
                 for (const o of $(`kort${i}`).options) o.disabled = isValueFullyTaken(cards, idx, o.value);
                 for (const o of $(`farg${i}`).options) o.disabled = value !== 'nn' && isTaken(cards, idx, value + o.value);
                 $(`farg${i}`).disabled = value === 'nn';
+                const suit = $(`farg${i}`).value;
+                $(`pip${i}`).textContent = value === 'nn' ? '' : SUIT_SYMBOL[suit];
+                $(`pip${i}`).classList.toggle('red', RED.has(suit));
             }
+            $('hand').classList.toggle('auto', Boolean(evaluateHand(cards)));
         }
 
         /** When all five cards are face up, pick the matching hand automatically. */
@@ -226,6 +266,7 @@
         }
 
         function showExpired() {
+            closeMenu();
             $('form').hidden = true;
             $('expired').hidden = false;
             $('menuButton').hidden = true;
@@ -243,8 +284,16 @@
             };
         }
 
-        async function save(patch = collect()) {
+        async function save(patch = collect(), { quiet = false } = {}) {
             const s = strings(state?.lang);
+            if (quiet) {
+                try {
+                    const r = await saveState(key, patch);
+                    if (r.status === 404) showExpired();
+                    else if (r.ok) state = r.data.state;
+                } catch { /* ignore, next save retries */ }
+                return;
+            }
             setStatus(s.saving);
             $('saveButton').disabled = true;
             try {
@@ -269,12 +318,38 @@
             $(`kort${i}`).addEventListener('change', () => onValueChange(i));
             $(`farg${i}`).addEventListener('change', onSuitChange);
         }
-        $('saveButton').addEventListener('click', () => save());
+        $('saveButton').addEventListener('click', () => {
+            if (!$('namn').value.trim()) {
+                $('namn').classList.add('invalid');
+                $('namn').focus();
+                setStatus(strings(state?.lang).needName, 'error');
+                return;
+            }
+            save();
+        });
+        $('namn').addEventListener('input', () => $('namn').classList.remove('invalid'));
+
+        // Participant count is saved on its own right away, like in vpk_app.
+        let countTimer;
+        function setCount(n) {
+            const v = Math.max(0, Math.min(9999, Number.isFinite(n) ? n : 0));
+            $('antal').value = String(v);
+            clearTimeout(countTimer);
+            countTimer = setTimeout(() => save({ count: String(v) }, { quiet: true }), 400);
+        }
+        const currentCount = () => parseInt($('antal').value, 10) || 0;
+        $('countMinus').addEventListener('click', () => setCount(currentCount() - 1));
+        $('countPlus').addEventListener('click', () => setCount(currentCount() + 1));
+        $('antal').addEventListener('input', () => {
+            $('antal').value = $('antal').value.replace(/\D/g, '');
+            setCount(currentCount());
+        });
         $('saveSettings').addEventListener('click', async () => {
             await save();
             closeMenu();
         });
         $('resetButton').addEventListener('click', () => {
+            $('namn').classList.remove('invalid');
             save({ cards: ['nn', 'nn', 'nn', 'nn', 'nn'], hand: 'side_pot', holder: '', count: '0' });
         });
         $('lang').addEventListener('change', () => {
@@ -294,6 +369,49 @@
             $('menuOverlay').classList.contains('active') ? closeMenu() : openMenu();
         });
         $('closeMenu').addEventListener('click', closeMenu);
+
+        for (const btn of document.querySelectorAll('[data-share]')) {
+            btn.addEventListener('click', async () => {
+                const s = strings(state?.lang);
+                const res = await shareLink($(btn.dataset.share).textContent, state?.club ? `${state.club} – High Hand` : 'High Hand');
+                if (res === 'shared' || res === 'copied') {
+                    btn.textContent = res === 'shared' ? s.shared : s.copied;
+                    setTimeout(() => { btn.textContent = s.share; }, 1500);
+                }
+            });
+        }
+
+        $('pairForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const s = strings(state?.lang);
+            const el = $('pairStatus');
+            const code = parseCode($('pairCode').value);
+            el.className = 'small pair-status';
+            if (!code) {
+                el.textContent = s.pairBadCode;
+                el.classList.add('error');
+                return;
+            }
+            $('pairButton').disabled = true;
+            try {
+                const r = await pairScreen(code, key);
+                if (r.ok) {
+                    el.textContent = s.pairOk;
+                    el.classList.add('ok');
+                    $('pairCode').value = '';
+                } else if (r.data.error === 'session_not_found') {
+                    showExpired();
+                } else {
+                    el.textContent = s.pairNotFound;
+                    el.classList.add('error');
+                }
+            } catch {
+                el.textContent = s.saveFailed;
+                el.classList.add('error');
+            } finally {
+                $('pairButton').disabled = false;
+            }
+        });
 
         for (const btn of document.querySelectorAll('[data-copy]')) {
             btn.addEventListener('click', async () => {

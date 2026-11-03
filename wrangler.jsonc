@@ -14,12 +14,14 @@
   "durable_objects": {
     "bindings": [
       { "name": "SESSIONS", "class_name": "HighHandSession" },
-      { "name": "REGISTRY", "class_name": "Registry" }
+      { "name": "REGISTRY", "class_name": "Registry" },
+      { "name": "PAIRING", "class_name": "Pairing" }
     ]
   },
   "migrations": [
     { "tag": "v1", "new_sqlite_classes": ["HighHandSession"] },
-    { "tag": "v2", "new_sqlite_classes": ["Registry"] }
+    { "tag": "v2", "new_sqlite_classes": ["Registry"] },
+    { "tag": "v3", "new_sqlite_classes": ["Pairing"] }
   ],
   "observability": { "enabled": true }
 }

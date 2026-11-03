@@ -2,7 +2,7 @@
 // Card format matches the images in /images/cards/: value + suit, e.g. "ah", "10s"; "nn" = back.
 
 export const CARD_VALUES = ['a', 'k', 'q', 'j', '10', '9', '8', '7', '6', '5', '4', '3', '2', 'nn'];
-export const SUITS = ['h', 'r', 'k', 's']; // hjärter, ruter, klöver, spader
+export const SUITS = ['s', 'h', 'r', 'k']; // spader, hjärter, ruter, klöver
 
 const RANK_ORDER = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'j', 'q', 'k', 'a'];
 
