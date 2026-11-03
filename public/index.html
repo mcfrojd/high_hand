@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="sv">
+
+<head>
+    <meta charset="UTF-8">
+    <title>High Hand</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Visa kvällens high hand på en skärm och uppdatera den från mobilen.">
+    <meta name="theme-color" content="#1a1a1a">
+    <link rel="icon" href="/images/misc/icon-192.png">
+    <link rel="apple-touch-icon" href="/images/misc/icon-192.png">
+    <link rel="stylesheet" href="/css/start.css">
+</head>
+
+<body>
+    <main class="page">
+        <header class="hero">
+            <img src="/images/misc/logo.png" alt="" class="logo">
+            <h1>High Hand</h1>
+            <p data-i18n="startLead">Visa kvällens high hand på en skärm och uppdatera den från mobilen.</p>
+            <div class="lang-switch" role="group" aria-label="Language">
+                <button type="button" data-lang="sv">Svenska</button>
+                <button type="button" data-lang="en">English</button>
+            </div>
+        </header>
+
+        <section class="card" id="createCard">
+            <h2 data-i18n="createTitle">Skapa en ny high hand-skärm</h2>
+            <form id="createForm">
+                <label for="club" data-i18n="clubOptional">Klubbnamn</label>
+                <input type="text" id="club" maxlength="40" autocomplete="organization" data-i18n-placeholder="clubPlaceholder">
+                <button type="submit" class="btn primary" id="createButton" data-i18n="create">Skapa</button>
+                <p class="error" id="createError" role="alert" hidden></p>
+            </form>
+        </section>
+
+        <section class="card result" id="result" hidden>
+            <h2 data-i18n="yourLinks">Dina länkar</h2>
+            <p class="warning" data-i18n="saveLinks">Spara länkarna!</p>
+            <div class="link-block">
+                <span class="link-label" data-i18n="displayLink">Skärmlänk</span>
+                <div class="link-row">
+                    <a id="displayLink" target="_blank" rel="noopener"></a>
+                    <button type="button" class="btn" data-copy="displayLink" data-i18n="copy">Kopiera</button>
+                </div>
+            </div>
+            <div class="link-block">
+                <span class="link-label" data-i18n="adminLink">Adminlänk</span>
+                <div class="link-row">
+                    <a id="adminLink"></a>
+                    <button type="button" class="btn" data-copy="adminLink" data-i18n="copy">Kopiera</button>
+                </div>
+            </div>
+            <p class="small"><span data-i18n="expiresAt">Nyckeln upphör</span>: <strong id="expiresAt"></strong></p>
+        </section>
+
+        <section class="card">
+            <h2 data-i18n="openExisting">Öppna en befintlig nyckel</h2>
+            <form id="openForm" class="inline-form">
+                <input type="text" id="existingKey" autocomplete="off" spellcheck="false" data-i18n-placeholder="keyPlaceholder" aria-label="Key">
+                <button type="submit" class="btn" data-i18n="open">Öppna</button>
+            </form>
+            <p class="error" id="openError" role="alert" hidden></p>
+            <p class="small" id="lastKeyRow" hidden><span data-i18n="lastKey">Senast skapade nyckel</span>: <a id="lastKey"></a></p>
+        </section>
+    </main>
+
+    <script type="module">
+        import { createSession, links, parseKey, copyText, removeOldServiceWorkers } from '/js/api.js';
+        import { applyI18n, strings, browserLang, formatTime } from '/js/i18n.js';
+
+        const $ = (id) => document.getElementById(id);
+        const STORAGE_KEY = 'highhand:last';
+        let lang = browserLang();
+        let lastResult = null;
+
+        removeOldServiceWorkers();
+
+        function storageGet() {
+            try {
+                const v = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+                return v && v.expiresAt > Date.now() ? v : null;
+            } catch {
+                return null;
+            }
+        }
+        function storageSet(v) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(v));
+            } catch {
+                // storage unavailable
+            }
+        }
+
+        function setLang(l) {
+            lang = l;
+            applyI18n(lang);
+            for (const b of document.querySelectorAll('[data-lang]')) {
+                b.setAttribute('aria-pressed', String(b.dataset.lang === lang));
+            }
+            if (lastResult) $('expiresAt').textContent = formatTime(lastResult.expiresAt, lang);
+        }
+
+        function showResult(r) {
+            lastResult = r;
+            const l = links(r.key);
+            $('displayLink').href = l.display;
+            $('displayLink').textContent = l.display;
+            $('adminLink').href = l.admin;
+            $('adminLink').textContent = l.admin;
+            $('expiresAt').textContent = formatTime(r.expiresAt, lang);
+            $('result').hidden = false;
+            $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function showLast() {
+            const last = storageGet();
+            if (!last) return;
+            $('lastKey').textContent = last.key;
+            $('lastKey').href = links(last.key).admin;
+            $('lastKeyRow').hidden = false;
+        }
+
+        for (const b of document.querySelectorAll('[data-lang]')) {
+            b.addEventListener('click', () => setLang(b.dataset.lang));
+        }
+
+        $('createForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const s = strings(lang);
+            const btn = $('createButton');
+            btn.disabled = true;
+            btn.textContent = s.creating;
+            $('createError').hidden = true;
+            try {
+                const r = await createSession(lang, $('club').value);
+                if (!r.ok) throw new Error(r.data.error);
+                storageSet({ key: r.data.key, expiresAt: r.data.expiresAt });
+                showResult(r.data);
+                showLast();
+            } catch {
+                $('createError').textContent = s.createFailed;
+                $('createError').hidden = false;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = strings(lang).create;
+            }
+        });
+
+        $('openForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const key = parseKey($('existingKey').value);
+            if (!key) {
+                $('openError').textContent = strings(lang).invalidKey;
+                $('openError').hidden = false;
+                return;
+            }
+            location.href = links(key).admin;
+        });
+
+        for (const btn of document.querySelectorAll('[data-copy]')) {
+            btn.addEventListener('click', async () => {
+                if (await copyText($(btn.dataset.copy).textContent)) {
+                    btn.textContent = strings(lang).copied;
+                    setTimeout(() => { btn.textContent = strings(lang).copy; }, 1500);
+                }
+            });
+        }
+
+        setLang(lang);
+        showLast();
+    </script>
+</body>
+
+</html>
