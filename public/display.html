@@ -28,7 +28,7 @@
     <div id="offline" class="offline" hidden></div>
 
     <script type="module">
-        import { getKey, connect, TV_STORAGE_KEY } from '/js/api.js';
+        import { getKey, connect, TV_STORAGE_KEY, backgroundUrl } from '/js/api.js';
         import { applyI18n, strings } from '/js/i18n.js';
 
         const key = getKey();
@@ -63,7 +63,7 @@
             $('clubName').textContent = state.club || '';
             $('clubName').hidden = !state.club;
 
-            document.body.style.setProperty('--bg-image', `url("/images/backgrounds/${state.background}")`);
+            document.body.style.setProperty('--bg-image', `url("${backgroundUrl(key, state)}")`);
 
             const container = $('imageContainer');
             container.replaceChildren(...state.cards.map((card, i) => {

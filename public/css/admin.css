@@ -640,3 +640,44 @@ body {
 .link-row code {
     flex-basis: 100%;
 }
+
+/* custom background upload */
+.bg-upload {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.bg-preview {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #444;
+}
+
+.bg-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.bg-buttons .btn {
+    flex: 1 1 auto;
+    font-size: 0.85em;
+    padding: 8px 10px;
+}
+
+.btn.danger {
+    color: var(--danger, #e5484d);
+    border-color: var(--danger, #e5484d);
+    background: transparent;
+}
+
+.bg-status.ok {
+    color: #38fab3;
+}
+
+.bg-status.error {
+    color: #ff6b6b;
+}

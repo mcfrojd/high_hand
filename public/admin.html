@@ -37,6 +37,16 @@
             </select>
             <label for="background" data-i18n="background">Bakgrund</label>
             <select id="background"></select>
+            <div class="bg-upload">
+                <img id="bgPreview" class="bg-preview" alt="" hidden>
+                <input type="file" id="bgFile" accept="image/*" hidden>
+                <div class="bg-buttons">
+                    <button type="button" class="btn" id="bgUpload" data-i18n="uploadBg">Ladda upp egen bild</button>
+                    <button type="button" class="btn danger" id="bgRemove" data-i18n="removeBg" hidden>Ta bort egen bild</button>
+                </div>
+                <p class="small bg-status" id="bgStatus" role="status"></p>
+                <p class="small" data-i18n="bgHint">Bilden förminskas automatiskt och raderas när nyckeln går ut.</p>
+            </div>
             <button id="saveSettings" class="btn" data-i18n="save">Spara</button>
 
             <hr>
@@ -113,7 +123,7 @@
 
     <script src="/js/vendor/qrcode.js"></script>
     <script type="module">
-        import { getKey, fetchState, saveState, links, copyText, removeOldServiceWorkers, pairScreen, parseCode, shareLink, showQr } from '/js/api.js';
+        import { getKey, fetchState, saveState, links, copyText, removeOldServiceWorkers, pairScreen, parseCode, shareLink, showQr, uploadBackground, deleteBackground, backgroundUrl } from '/js/api.js';
         import { applyI18n, strings, formatTime } from '/js/i18n.js';
         import { CARD_VALUES, SUITS, evaluateHand, isTaken, isValueFullyTaken, pickSuit } from '/js/cards.js';
 
@@ -178,7 +188,8 @@
                 for (const o of $(`farg${i}`).options) o.title = s.suits[o.value];
             }
             fillSelect($('hand'), HANDS, (v) => s.hands[v]);
-            fillSelect($('background'), BACKGROUNDS, (v) => s.backgrounds[v] || v);
+            const bgs = state?.customBg ? [...BACKGROUNDS, 'custom'] : BACKGROUNDS;
+            fillSelect($('background'), bgs, (v) => (v === 'custom' ? s.customBg : s.backgrounds[v] || v));
         }
 
         function populate(st) {
@@ -198,13 +209,32 @@
             $('antal').value = st.count || '0';
             $('club').value = st.club;
             $('lang').value = st.lang;
-            $('background').value = st.background;
+            syncBackground(st);
             $('clubTitle').textContent = st.club;
             $('expiresAt').textContent = formatTime(st.expiresAt, st.lang);
             const l = links(key);
             $('displayLink').textContent = l.display;
             $('adminLink').textContent = l.admin;
             document.title = st.club ? `${st.club} – HH Admin` : 'HH Admin';
+        }
+
+        /** Update only the background controls (keeps unsaved edits in the form). */
+        function syncBackground(st) {
+            state = st;
+            const s = strings(st.lang);
+            const bgs = st.customBg ? [...BACKGROUNDS, 'custom'] : BACKGROUNDS;
+            fillSelect($('background'), bgs, (v) => (v === 'custom' ? s.customBg : s.backgrounds[v] || v));
+            $('background').value = st.background;
+            $('bgRemove').hidden = !st.customBg;
+            $('bgPreview').hidden = !st.customBg;
+            if (st.customBg) $('bgPreview').src = backgroundUrl(key, { background: 'custom', customBg: st.customBg });
+            else $('bgPreview').removeAttribute('src');
+        }
+
+        function setBgStatus(text, kind) {
+            const el = $('bgStatus');
+            el.textContent = text;
+            el.className = `small bg-status ${kind || ''}`;
         }
 
         function currentCards() {
@@ -364,6 +394,43 @@
             $('menuOverlay').classList.contains('active') ? closeMenu() : openMenu();
         });
         $('closeMenu').addEventListener('click', closeMenu);
+
+        $('bgUpload').addEventListener('click', () => $('bgFile').click());
+        $('bgFile').addEventListener('change', async () => {
+            const file = $('bgFile').files[0];
+            $('bgFile').value = '';
+            if (!file) return;
+            const s = strings(state?.lang);
+            setBgStatus(s.uploading);
+            $('bgUpload').disabled = true;
+            try {
+                const r = await uploadBackground(key, file);
+                if (r.status === 404) return showExpired();
+                if (!r.ok) {
+                    setBgStatus(r.status === 413 ? s.bgTooLarge : s.bgInvalid, 'error');
+                    return;
+                }
+                syncBackground(r.data.state);
+                setBgStatus(s.uploaded, 'ok');
+            } catch (e) {
+                setBgStatus(e && e.message === 'too_large' ? s.bgTooLarge : s.bgInvalid, 'error');
+            } finally {
+                $('bgUpload').disabled = false;
+            }
+        });
+        $('bgRemove').addEventListener('click', async () => {
+            const s = strings(state?.lang);
+            try {
+                const r = await deleteBackground(key);
+                if (r.status === 404) return showExpired();
+                if (r.ok) {
+                    syncBackground(r.data.state);
+                    setBgStatus('');
+                }
+            } catch {
+                setBgStatus(s.saveFailed, 'error');
+            }
+        });
 
         for (const btn of document.querySelectorAll('[data-qr]')) {
             btn.addEventListener('click', () => {

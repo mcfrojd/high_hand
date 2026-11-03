@@ -279,3 +279,69 @@ export function showQr(url, title, { close = 'Stäng', hint = '' } = {}) {
   if (typeof dlg.showModal === 'function') dlg.showModal();
   else dlg.setAttribute('open', '');
 }
+
+// ---- Custom background image ----
+
+const BG_MAX_SIDE = 1920;
+const BG_MAX_BYTES = 1.4 * 1024 * 1024; // server limit is 1.5 MB
+
+export function backgroundUrl(key, state) {
+  if (state.background === 'custom' && state.customBg) {
+    return `/api/${key}/background?v=${state.customBg}`;
+  }
+  return `/images/backgrounds/${state.background}`;
+}
+
+async function loadImage(file) {
+  if ('createImageBitmap' in window) {
+    try {
+      return await createImageBitmap(file, { imageOrientation: 'from-image' });
+    } catch {
+      // fall through to <img>
+    }
+  }
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    img.src = url;
+    await img.decode();
+    return img;
+  } finally {
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+  }
+}
+
+/** Downscale to max 1920 px and re-encode as JPEG, so uploads stay small. */
+export async function prepareBackground(file) {
+  const img = await loadImage(file);
+  const w = img.width;
+  const h = img.height;
+  if (!w || !h) throw new Error('invalid_image');
+  const scale = Math.min(1, BG_MAX_SIDE / Math.max(w, h));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(w * scale);
+  canvas.height = Math.round(h * scale);
+  canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+  img.close?.();
+  for (const quality of [0.82, 0.7, 0.55, 0.4]) {
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', quality));
+    if (blob && blob.size <= BG_MAX_BYTES) return blob;
+  }
+  throw new Error('too_large');
+}
+
+export async function uploadBackground(key, file) {
+  const blob = await prepareBackground(file);
+  const res = await fetch(`/api/${key}/background`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'image/jpeg' },
+    body: blob,
+  });
+  let data = {};
+  try { data = await res.json(); } catch { /* ignore */ }
+  return { ok: res.ok, status: res.status, data };
+}
+
+export async function deleteBackground(key) {
+  return request('DELETE', `/api/${key}/background`);
+}

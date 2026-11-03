@@ -47,6 +47,8 @@ I admin gör du så här:
 - **Reset** nollställer skärmen efter turneringen.
 
 I menyn **☰** kan du ändra klubbnamn, språk (svenska eller engelska) och bakgrund.
+Där kan du också **ladda upp en egen bakgrundsbild**, till exempel ett foto från mobilen.
+Bilden förminskas automatiskt, och en ny uppladdning ersätter den förra. Bilden raderas när nyckeln går ut.
 
 ## Bra att veta
 
