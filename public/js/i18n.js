@@ -87,7 +87,7 @@ export const STRINGS = {
     uploaded: 'Bilden är uppladdad ✓',
     bgTooLarge: 'Bilden är för stor',
     bgInvalid: 'Filen kunde inte läsas som en bild',
-    bgHint: 'Bilden förminskas automatiskt och raderas när nyckeln går ut.',
+    bgHint: 'Bäst blir en liggande bild i 16:9, till exempel 1920×1080 px. Större bilder förminskas automatiskt. Skärmen gör bilden mörkare så att texten syns. Bilden raderas när nyckeln går ut.',
     // TV pairing + sharing
     tvTitle: 'Koppla den här skärmen',
     tvStep1: 'Öppna admin för din high hand på mobilen.',
@@ -196,7 +196,7 @@ export const STRINGS = {
     uploaded: 'Image uploaded ✓',
     bgTooLarge: 'The image is too large',
     bgInvalid: 'The file could not be read as an image',
-    bgHint: 'The image is resized automatically and deleted when the key expires.',
+    bgHint: 'Best is a landscape 16:9 image, e.g. 1920×1080 px. Larger images are resized automatically. The screen darkens the image so the text stays readable. The image is deleted when the key expires.',
     tvTitle: 'Connect this screen',
     tvStep1: 'Open the admin page for your high hand on your phone.',
     tvStep2: 'Scroll down to Connect screen.',

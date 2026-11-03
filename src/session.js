@@ -87,6 +87,7 @@ export class HighHandSession extends DurableObject {
     const next = { ...state, background: CUSTOM_BG, customBg: updatedAt };
     await this.ctx.storage.put('state', next);
     this.broadcast({ type: 'state', state: next });
+    if (next.key) await this.log((r) => r.recordBackground(next.key, updatedAt));
     return { state: next };
   }
 
@@ -107,6 +108,7 @@ export class HighHandSession extends DurableObject {
     };
     await this.ctx.storage.put('state', next);
     this.broadcast({ type: 'state', state: next });
+    if (next.key) await this.log((r) => r.recordBackground(next.key, null));
     return { state: next };
   }
 

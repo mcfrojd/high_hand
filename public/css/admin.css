@@ -506,6 +506,8 @@ body {
 }
 
 .pip {
+    font-family: 'Segoe UI Symbol', 'Apple Symbols', 'DejaVu Sans', 'Noto Sans Symbols2', sans-serif;
+    font-variant-emoji: text;
     font-size: 1.15rem;
     color: #f0f0f0;
     text-align: center;
