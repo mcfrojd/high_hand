@@ -188,3 +188,28 @@ body::before {
     background: #e30410;
     z-index: 2;
 }
+
+/* pre-game message (replaces cards + hand while no high hand is saved) */
+#pregame {
+    height: 45vh;
+    width: 90vw;
+    margin: 0 auto;
+    padding: 2vh 3vw;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.45);
+    border: 2px solid rgba(245, 180, 17, 0.6);
+    border-radius: 2vh;
+    overflow: hidden;
+}
+
+#pregameText {
+    text-align: center;
+    color: #ffffff;
+    font-weight: bold;
+    line-height: 1.25;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0);
+    overflow-wrap: anywhere;
+}

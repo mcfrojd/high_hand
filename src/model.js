@@ -12,6 +12,8 @@ export const MAX_BG_BYTES = 1.5 * 1024 * 1024;
 export const LANGS = ['sv', 'en'];
 
 export const MAX_TEXT = 40;
+export const MAX_MESSAGE = 300;
+export const MAX_MESSAGE_LINES = 8;
 export const DEFAULT_TTL_MS = 48 * 60 * 60 * 1000;
 
 const VALID_CARDS = new Set(['nn']);
@@ -34,6 +36,23 @@ export function cleanText(value, field, { max = MAX_TEXT } = {}) {
   return s;
 }
 
+/** Multi-line text (pre-game message): keeps line breaks, strips other control chars. */
+export function cleanMultiline(value, field) {
+  if (value === undefined || value === null) return '';
+  if (typeof value !== 'string') throw new ValidationError(field);
+  const lines = value
+    .replace(/\r\n?/g, '\n')
+    // eslint-disable-next-line no-control-regex
+    .replace(/[\u0000-\u0009\u000b-\u001f\u007f]/g, '')
+    .split('\n')
+    .map((l) => l.trim());
+  while (lines.length && !lines[0]) lines.shift();
+  while (lines.length && !lines[lines.length - 1]) lines.pop();
+  const out = lines.join('\n');
+  if (out.length > MAX_MESSAGE || lines.length > MAX_MESSAGE_LINES) throw new ValidationError(field);
+  return out;
+}
+
 export function cleanLang(value) {
   if (!LANGS.includes(value)) throw new ValidationError('lang');
   return value;
@@ -46,6 +65,8 @@ export function defaultState({ lang, club, now, ttlMs }) {
     holder: '',
     count: '',
     background: BACKGROUNDS[0],
+    message: '',
+    messageOn: false,
     lang,
     club,
     createdAt: now,
@@ -90,6 +111,11 @@ export function cleanPatch(patch) {
     out.background = patch.background;
   }
   if ('lang' in patch) out.lang = cleanLang(patch.lang);
+  if ('message' in patch) out.message = cleanMultiline(patch.message, 'message');
+  if ('messageOn' in patch) {
+    if (typeof patch.messageOn !== 'boolean') throw new ValidationError('messageOn');
+    out.messageOn = patch.messageOn;
+  }
   return out;
 }
 

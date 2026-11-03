@@ -62,3 +62,8 @@ export function pickSuit(cards, idx, value, current) {
   const ordered = [preferred, ...SUITS.filter((s) => s !== preferred)];
   return ordered.find((s) => !isTaken(cards, idx, value + s)) ?? preferred;
 }
+
+/** Same rule as isRealHand in src/model.js: not the reset/side-pot state and a face-up card. */
+export function isRealHand(state) {
+  return state.hand !== 'side_pot' && Array.isArray(state.cards) && state.cards.some((c) => c !== 'nn');
+}

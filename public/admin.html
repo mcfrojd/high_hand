@@ -97,6 +97,26 @@
             </div>
             <p id="status" class="status" role="status"></p>
 
+            <section class="screen-box pregame-box">
+                <h2 data-i18n="pregameTitle">Meddelande före spel</h2>
+                <label class="switch-row">
+                    <input type="checkbox" id="messageOn">
+                    <span data-i18n="pregameToggle">Visa på skärmen tills första handen sparas</span>
+                </label>
+                <div class="template-row">
+                    <button type="button" class="btn small-btn" data-template="nlh" data-i18n="tplNlhLabel">No Limit Texas</button>
+                    <button type="button" class="btn small-btn" data-template="plo" data-i18n="tplPloLabel">Pot Limit Omaha</button>
+                    <button type="button" class="btn small-btn" data-template="sviten" data-i18n="tplSvitenLabel">Sviten (5-kort)</button>
+                </div>
+                <label for="message" class="sr-only" data-i18n="pregameTitle">Meddelande före spel</label>
+                <textarea id="message" rows="5" maxlength="300" data-i18n-placeholder="pregamePlaceholder"></textarea>
+                <div class="pregame-actions">
+                    <span class="small" id="pregameState"></span>
+                    <button type="button" class="btn primary" id="saveMessage" data-i18n="pregameSave">Spara meddelande</button>
+                </div>
+                <p class="small pregame-status" id="messageStatus" role="status"></p>
+            </section>
+
             <section class="screen-box">
                 <h2 data-i18n="pairTitle">Koppla skärm</h2>
                 <p class="small" data-i18n="pairHelp">Öppna highhand.se/tv på TV:n och skriv in koden som visas där.</p>
@@ -125,7 +145,7 @@
     <script type="module">
         import { getKey, fetchState, saveState, links, copyText, removeOldServiceWorkers, pairScreen, parseCode, shareLink, showQr, uploadBackground, deleteBackground, backgroundUrl } from '/js/api.js';
         import { applyI18n, strings, formatTime } from '/js/i18n.js';
-        import { CARD_VALUES, SUITS, evaluateHand, isTaken, isValueFullyTaken, pickSuit } from '/js/cards.js';
+        import { CARD_VALUES, SUITS, evaluateHand, isTaken, isValueFullyTaken, pickSuit, isRealHand } from '/js/cards.js';
 
         const HANDS = ['royal_flush', 'straight_flush', 'four_kind', 'full_house', 'flush',
             'straight', 'three_kind', 'two_pair', 'pair', 'high_card', 'side_pot'];
@@ -192,9 +212,23 @@
             fillSelect($('background'), bgs, (v) => (v === 'custom' ? s.customBg : s.backgrounds[v] || v));
         }
 
+        /** Pre-game message controls; also tells whether it is showing on the screen now. */
+        function syncMessage(st, { fields = true } = {}) {
+            state = st;
+            if (fields) {
+                $('message').value = st.message || '';
+                $('messageOn').checked = Boolean(st.messageOn);
+            }
+            const s = strings(st.lang);
+            let text = s.pregameOff;
+            if (st.messageOn && st.message) text = isRealHand(st) ? s.pregameHidden : s.pregameShowing;
+            $('pregameState').textContent = text;
+        }
+
         function populate(st) {
             state = st;
             translate(st.lang);
+            syncMessage(st);
             st.cards.forEach((card, idx) => {
                 const i = idx + 1;
                 if (card === 'nn') {
@@ -394,6 +428,39 @@
             $('menuOverlay').classList.contains('active') ? closeMenu() : openMenu();
         });
         $('closeMenu').addEventListener('click', closeMenu);
+
+        for (const btn of document.querySelectorAll('[data-template]')) {
+            btn.addEventListener('click', () => {
+                const s = strings(state?.lang);
+                $('message').value = s.templates[btn.dataset.template];
+                $('messageOn').checked = true;
+            });
+        }
+        $('saveMessage').addEventListener('click', async () => {
+            const s = strings(state?.lang);
+            const el = $('messageStatus');
+            el.className = 'small pregame-status';
+            el.textContent = s.saving;
+            $('saveMessage').disabled = true;
+            try {
+                const r = await saveState(key, { message: $('message').value, messageOn: $('messageOn').checked });
+                if (r.status === 404) return showExpired();
+                if (!r.ok) {
+                    el.textContent = s.pregameInvalid;
+                    el.classList.add('error');
+                    return;
+                }
+                syncMessage(r.data.state);
+                el.textContent = s.saved;
+                el.classList.add('ok');
+                setTimeout(() => { el.textContent = ''; }, 3000);
+            } catch {
+                el.textContent = s.saveFailed;
+                el.classList.add('error');
+            } finally {
+                $('saveMessage').disabled = false;
+            }
+        });
 
         $('bgUpload').addEventListener('click', () => $('bgFile').click());
         $('bgFile').addEventListener('change', async () => {

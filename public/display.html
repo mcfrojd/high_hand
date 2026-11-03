@@ -16,6 +16,7 @@
         <div class="title" data-i18n="title">Kvällens high hand</div>
         <div id="imageContainer"></div>
         <div id="handContainer"></div>
+        <div id="pregame" hidden><div id="pregameText"></div></div>
         <div id="innehavareRow">
             <div id="innehavareContainer"></div>
             <div id="antalDisplay"></div>
@@ -30,6 +31,7 @@
     <script type="module">
         import { getKey, connect, TV_STORAGE_KEY, backgroundUrl } from '/js/api.js';
         import { applyI18n, strings } from '/js/i18n.js';
+        import { isRealHand } from '/js/cards.js';
 
         const key = getKey();
         const $ = (id) => document.getElementById(id);
@@ -37,6 +39,20 @@
         let current = null;
         applyI18n(lang);
         $('homeLink').textContent = location.host;
+
+        /** Shrink the text in `container` until it fits (start from its height). */
+        function fitText(container, inner = container) {
+            const cs = getComputedStyle(container);
+            const containerWidth = container.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+            const containerHeight = container.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+            if (containerWidth <= 0 || containerHeight <= 0) return;
+            let fontSize = containerHeight / 3;
+            inner.style.fontSize = fontSize + 'px';
+            while ((inner.scrollWidth > containerWidth || inner.scrollHeight > containerHeight) && fontSize > 1) {
+                fontSize = fontSize * 0.92;
+                inner.style.fontSize = fontSize + 'px';
+            }
+        }
 
         function optimizeTextSize() {
             const container = $('handContainer');
@@ -77,7 +93,16 @@
             }));
 
             $('handContainer').textContent = s.hands[state.hand] || '';
-            optimizeTextSize();
+
+            // Pre-game message: shown while no real high hand is saved.
+            const showPregame = Boolean(state.messageOn && state.message && !isRealHand(state));
+            $('pregame').hidden = !showPregame;
+            $('imageContainer').hidden = showPregame;
+            $('handContainer').hidden = showPregame;
+            const lines = (state.message || '').split('\n');
+            $('pregameText').replaceChildren(...lines.flatMap((line, i) => (i ? [document.createElement('br'), line] : [line])));
+            if (showPregame) fitText($('pregame'), $('pregameText'));
+            else optimizeTextSize();
             $('innehavareContainer').textContent = state.holder || s.registered;
             $('antalDisplay').textContent = state.count || '0';
         }
@@ -95,6 +120,7 @@
         }
 
         new ResizeObserver(optimizeTextSize).observe($('handContainer'));
+        new ResizeObserver(() => { if (!$('pregame').hidden) fitText($('pregame'), $('pregameText')); }).observe($('pregame'));
 
         if (!key) {
             location.replace('/');
