@@ -57,6 +57,7 @@
                     <button type="button" class="btn" data-copy="displayLink" data-i18n="copy">Kopiera</button>
                     <button type="button" class="btn" data-share="displayLink" data-i18n="share">Dela</button>
                     <button type="button" class="btn" data-qr="displayLink" data-i18n="qr">QR-kod</button>
+                    <a class="btn" id="displayLinkOpen" target="_blank" rel="noopener" data-i18n="open">Öppna</a>
                 </div>
             </div>
             <div class="link-block">
@@ -66,6 +67,7 @@
                     <button type="button" class="btn" data-copy="adminLink" data-i18n="copy">Kopiera</button>
                     <button type="button" class="btn" data-share="adminLink" data-i18n="share">Dela</button>
                     <button type="button" class="btn" data-qr="adminLink" data-i18n="qr">QR-kod</button>
+                    <a class="btn" id="adminLinkOpen" data-i18n="open">Öppna</a>
                 </div>
             </div>
             <p class="small tv-hint"><span data-i18n="pairHelp">Öppna highhand.se/tv på TV:n och skriv in koden som visas där.</span></p>
@@ -132,6 +134,8 @@
             $('displayLink').href = l.display;
             $('displayLink').textContent = l.display;
             $('adminLink').href = l.admin;
+            $('displayLinkOpen').href = l.display;
+            $('adminLinkOpen').href = l.admin;
             $('adminLink').textContent = l.admin;
             $('expiresAt').textContent = formatTime(r.expiresAt, lang);
             $('result').hidden = false;
