@@ -89,12 +89,11 @@
     <script type="module">
         import { getKey, fetchState, saveState, links, copyText, removeOldServiceWorkers } from '/js/api.js';
         import { applyI18n, strings, formatTime } from '/js/i18n.js';
+        import { CARD_VALUES, SUITS, evaluateHand, isTaken, isValueFullyTaken, pickSuit } from '/js/cards.js';
 
-        const CARD_VALUES = ['a', 'k', 'q', 'j', '10', '9', '8', '7', '6', '5', '4', '3', '2', 'nn'];
-        const SUITS = ['h', 'r', 'k', 's'];
         const HANDS = ['royal_flush', 'straight_flush', 'four_kind', 'full_house', 'flush',
-            'straight', 'three_kind', 'two_pair', 'pair', 'side_pot'];
-        const BACKGROUNDS = ['table.jpg', 'room.jpg'];
+            'straight', 'three_kind', 'two_pair', 'pair', 'high_card', 'side_pot'];
+        const BACKGROUNDS = ['room.jpg', 'table.jpg'];
 
         const $ = (id) => document.getElementById(id);
         const key = getKey();
@@ -177,8 +176,45 @@
             document.title = st.club ? `${st.club} – HH Admin` : 'HH Admin';
         }
 
+        function currentCards() {
+            const cards = [];
+            for (let i = 1; i <= 5; i++) {
+                const v = $(`kort${i}`).value;
+                cards.push(v === 'nn' ? 'nn' : v + $(`farg${i}`).value);
+            }
+            return cards;
+        }
+
+        /** Disable values/suits that would duplicate another card (there is only one ace of hearts). */
         function syncSuitEnabled() {
-            for (let i = 1; i <= 5; i++) $(`farg${i}`).disabled = $(`kort${i}`).value === 'nn';
+            const cards = currentCards();
+            for (let i = 1; i <= 5; i++) {
+                const idx = i - 1;
+                const value = $(`kort${i}`).value;
+                for (const o of $(`kort${i}`).options) o.disabled = isValueFullyTaken(cards, idx, o.value);
+                for (const o of $(`farg${i}`).options) o.disabled = value !== 'nn' && isTaken(cards, idx, value + o.value);
+                $(`farg${i}`).disabled = value === 'nn';
+            }
+        }
+
+        /** When all five cards are face up, pick the matching hand automatically. */
+        function autoHand() {
+            const hand = evaluateHand(currentCards());
+            if (hand) $('hand').value = hand;
+        }
+
+        function onValueChange(i) {
+            const value = $(`kort${i}`).value;
+            if (value !== 'nn') {
+                $(`farg${i}`).value = pickSuit(currentCards(), i - 1, value, $(`farg${i}`).value);
+            }
+            syncSuitEnabled();
+            autoHand();
+        }
+
+        function onSuitChange() {
+            syncSuitEnabled();
+            autoHand();
         }
 
         function setStatus(text, kind) {
@@ -196,13 +232,8 @@
         }
 
         function collect() {
-            const cards = [];
-            for (let i = 1; i <= 5; i++) {
-                const v = $(`kort${i}`).value;
-                cards.push(v === 'nn' ? 'nn' : v + $(`farg${i}`).value);
-            }
             return {
-                cards,
+                cards: currentCards(),
                 hand: $('hand').value,
                 holder: $('namn').value,
                 count: $('antal').value,
@@ -234,7 +265,10 @@
         }
 
         // --- events ---
-        for (let i = 1; i <= 5; i++) $(`kort${i}`).addEventListener('change', syncSuitEnabled);
+        for (let i = 1; i <= 5; i++) {
+            $(`kort${i}`).addEventListener('change', () => onValueChange(i));
+            $(`farg${i}`).addEventListener('change', onSuitChange);
+        }
         $('saveButton').addEventListener('click', () => save());
         $('saveSettings').addEventListener('click', async () => {
             await save();
@@ -243,7 +277,10 @@
         $('resetButton').addEventListener('click', () => {
             save({ cards: ['nn', 'nn', 'nn', 'nn', 'nn'], hand: 'side_pot', holder: '', count: '0' });
         });
-        $('lang').addEventListener('change', () => translate($('lang').value));
+        $('lang').addEventListener('change', () => {
+            translate($('lang').value);
+            syncSuitEnabled();
+        });
 
         const openMenu = () => {
             $('menuOverlay').classList.add('active');
