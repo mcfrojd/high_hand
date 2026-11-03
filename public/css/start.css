@@ -214,38 +214,106 @@ a {
     color: var(--error);
 }
 
-.qr-row {
-    display: flex;
-    gap: 16px;
-    justify-content: center;
-    flex-wrap: wrap;
-}
 
-.qr-row figure {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-}
 
-.qr-row figcaption {
-    font-size: 0.8rem;
-    color: var(--muted);
-}
 
-.qr {
-    width: 150px;
-    background: #fff;
-    border-radius: 6px;
-    padding: 4px;
-    line-height: 0;
-}
 
-.qr svg {
-    width: 100%;
-    height: auto;
-}
 
 .link-row .btn {
     padding: 10px 12px;
+}
+
+/* link on its own line, buttons below */
+.link-row {
+    flex-wrap: wrap;
+}
+
+.link-row a {
+    flex-basis: 100%;
+}
+
+/* "How it works" dropdown */
+.how {
+    padding: 0;
+    gap: 0;
+}
+
+.how summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 14px 20px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.how summary::-webkit-details-marker {
+    display: none;
+}
+
+.how summary::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid var(--muted);
+    border-bottom: 2px solid var(--muted);
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+    margin-right: 4px;
+}
+
+.how[open] summary::after {
+    transform: rotate(-135deg);
+}
+
+.how summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+    border-radius: 8px;
+}
+
+.how-steps {
+    padding: 0 20px 0 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.how-steps li::marker {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.how-steps strong {
+    display: block;
+}
+
+.how-steps span {
+    color: var(--muted);
+}
+
+.how > .small {
+    padding: 12px 20px 16px;
+}
+
+/* footer */
+.site-footer {
+    text-align: center;
+    padding: 0 16px 32px;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.site-footer strong {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.site-footer a {
+    color: var(--muted);
+}
+
+.site-footer a:hover {
+    color: var(--accent);
 }
