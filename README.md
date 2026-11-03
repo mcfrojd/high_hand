@@ -30,6 +30,21 @@ När en nyckel går ut återgår TV:n automatiskt till kodsidan.
 
 Det fungerar också att öppna skärmlänken direkt i valfri webbläsare och visa den i fullskärm.
 
+### Vilken webbläsare på TV:n?
+
+| TV / enhet | Webbläsare |
+|---|---|
+| **Samsung** (Tizen) | Den inbyggda webbläsaren **Internet**. |
+| **LG** (webOS) | Den inbyggda **Webbläsaren**. |
+| **Google TV / Android TV** (Chromecast med Google TV, Google TV Streamer, Sony, Philips, TCL m.fl.) | Installera **TV Bro** från Play Butik. Den är gratis, går bra att styra med fjärrkontrollen och klarar fullskärm. |
+| **Amazon Fire TV** | **Silk** (Amazons webbläsare), som går att installera från Appstore. |
+| **Dator eller laptop kopplad till TV:n** | Chrome, Edge eller Firefox. Tryck på **F11** för fullskärm. |
+
+Tips:
+- **Undvik Puffin TV Browser.** Den visar sidorna via sina egna molnservrar, så skärmen kan missa uppdateringar i realtid.
+- **Stäng av skärmsläckaren** eller ambient-läget på TV:n, eller ställ in en lång tid, så att high hand syns hela kvällen. På Google TV finns det under **Inställningar → System → Energi och skärmsläckare**.
+- **Bokmärk highhand.se/tv** i webbläsaren, så kommer du snabbt till kodsidan nästa gång.
+
 ## Uppdatera high hand
 
 <img src="screenshots/hh-admin.jpg" alt="Admin på mobilen" width="320">
