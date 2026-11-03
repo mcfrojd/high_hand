@@ -1,0 +1,70 @@
+body {
+    overflow: hidden;
+}
+
+.tv {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.2vh;
+    padding: 4vh 5vw;
+    text-align: center;
+}
+
+.tv-logo {
+    width: 9vh;
+    height: 9vh;
+}
+
+.tv h1 {
+    color: var(--accent);
+    font-size: clamp(24px, 5vh, 56px);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.tv-steps {
+    list-style-position: inside;
+    font-size: clamp(16px, 3.2vh, 34px);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    gap: 0.6vh;
+}
+
+.tv-code {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: clamp(56px, 16vh, 200px);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #fff;
+    background: var(--surface);
+    border: 2px solid var(--accent);
+    border-radius: 16px;
+    padding: 1vh 4vw;
+    line-height: 1.1;
+    white-space: nowrap;
+}
+
+.tv-small {
+    color: var(--muted);
+    font-size: clamp(14px, 2.4vh, 26px);
+}
+
+.tv-status {
+    color: #38fab3;
+    font-size: clamp(18px, 3.5vh, 40px);
+    font-weight: 700;
+}
+
+.tv-continue {
+    font-size: clamp(16px, 3vh, 32px);
+    padding: 1.2vh 3vw;
+}
+
+.tv-continue:focus {
+    outline: 4px solid #fff;
+    outline-offset: 3px;
+}

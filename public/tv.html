@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="sv">
+
+<head>
+    <meta charset="UTF-8">
+    <title>High Hand – TV</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <link rel="icon" href="/images/misc/icon-192.png">
+    <link rel="stylesheet" href="/css/start.css">
+    <link rel="stylesheet" href="/css/tv.css">
+</head>
+
+<body>
+    <main class="tv">
+        <img src="/images/misc/logo.png" alt="" class="tv-logo">
+        <h1 data-i18n="tvTitle">Koppla den här skärmen</h1>
+        <ol class="tv-steps">
+            <li data-i18n="tvStep1">Öppna admin för din high hand på mobilen.</li>
+            <li data-i18n="tvStep2">Tryck på menyn ☰ och välj Koppla skärm.</li>
+            <li data-i18n="tvStep3">Skriv in koden:</li>
+        </ol>
+        <div class="tv-code" id="code" aria-live="polite">––– –––</div>
+        <p class="tv-small"><span data-i18n="tvExpiresIn">Koden byts om</span> <span id="countdown"></span></p>
+        <p class="tv-status" id="status" hidden></p>
+        <button type="button" class="btn primary tv-continue" id="continue" hidden></button>
+        <p class="tv-small" data-i18n="tvTip">Tips: bokmärk den här sidan på TV:n.</p>
+    </main>
+
+    <script type="module">
+        import { createPairCode, waitForPairing, fetchState, TV_STORAGE_KEY } from '/js/api.js';
+        import { applyI18n, strings, browserLang } from '/js/i18n.js';
+
+        const $ = (id) => document.getElementById(id);
+        const lang = browserLang();
+        const s = strings(lang);
+        applyI18n(lang);
+
+        let expiresAt = 0;
+        let waiter = null;
+        let retryDelay = 2000;
+
+        function remember(key) {
+            try { localStorage.setItem(TV_STORAGE_KEY, key); } catch { /* storage unavailable */ }
+        }
+        function stored() {
+            try { return localStorage.getItem(TV_STORAGE_KEY); } catch { return null; }
+        }
+
+        function go(key) {
+            remember(key);
+            $('status').textContent = s.tvConnected;
+            $('status').hidden = false;
+            setTimeout(() => location.replace(`/${key}/`), 600);
+        }
+
+        async function newCode() {
+            waiter?.cancel();
+            $('code').textContent = '––– –––';
+            try {
+                const r = await createPairCode();
+                if (!r.ok) throw new Error(r.status);
+                retryDelay = 2000;
+                const { code } = r.data;
+                expiresAt = r.data.expiresAt;
+                $('code').textContent = `${code.slice(0, 3)} ${code.slice(3)}`;
+                tick();
+                waiter = waitForPairing(code, { onPaired: go, onExpired: newCode });
+            } catch {
+                setTimeout(newCode, retryDelay);
+                retryDelay = Math.min(retryDelay * 2, 60000);
+            }
+        }
+
+        function tick() {
+            const left = Math.max(0, Math.round((expiresAt - Date.now()) / 1000));
+            $('countdown').textContent = expiresAt ? `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}` : '';
+            if (expiresAt && left === 0) { expiresAt = 0; newCode(); }
+        }
+        setInterval(tick, 1000);
+
+        // Offer the last screen this TV showed, if it is still active.
+        const last = stored();
+        if (last) {
+            fetchState(last).then((r) => {
+                if (!r.ok) return;
+                const btn = $('continue');
+                btn.textContent = r.data.state.club ? `${s.tvContinue}: ${r.data.state.club}` : s.tvContinue;
+                btn.hidden = false;
+                btn.focus();
+                btn.addEventListener('click', () => location.replace(`/${last}/`));
+            }).catch(() => {});
+        }
+
+        newCode();
+    </script>
+</body>
+
+</html>

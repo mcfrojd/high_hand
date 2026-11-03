@@ -150,3 +150,99 @@ export function removeOldServiceWorkers() {
       .catch(() => {});
   }
 }
+
+// ---- TV pairing ----
+
+export async function createPairCode() {
+  return request('POST', '/api/pair');
+}
+
+export async function pairScreen(code, key) {
+  return request('POST', `/api/pair/${code}`, { key });
+}
+
+/** "482 719", "482719", "482-719" -> "482719" (or null) */
+export function parseCode(input) {
+  const digits = String(input || '').replace(/[\s-]/g, '');
+  return /^\d{6}$/.test(digits) ? digits : null;
+}
+
+/**
+ * TV side: wait until admin enters the code. Calls onPaired(key) or
+ * onExpired(). Uses a WebSocket, with polling as fallback.
+ */
+export function waitForPairing(code, { onPaired, onExpired }) {
+  let done = false;
+  let ws;
+  let pollTimer;
+  let pingTimer;
+  const finish = (fn, arg) => {
+    if (done) return;
+    done = true;
+    clearInterval(pollTimer);
+    clearInterval(pingTimer);
+    try { ws?.close(); } catch { /* ignore */ }
+    fn(arg);
+  };
+  const poll = async () => {
+    try {
+      const r = await request('GET', `/api/pair/${code}`);
+      if (r.data.status === 'paired') finish(onPaired, r.data.key);
+      else if (r.data.status === 'expired' || r.status === 404) finish(onExpired);
+    } catch {
+      // offline, try again
+    }
+  };
+  const startPolling = () => {
+    if (!pollTimer && !done) pollTimer = setInterval(poll, 4000);
+  };
+  try {
+    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+    ws = new WebSocket(`${proto}://${location.host}/api/pair/${code}/ws`);
+    ws.onopen = () => {
+      pingTimer = setInterval(() => ws.readyState === WebSocket.OPEN && ws.send('ping'), 30000);
+    };
+    ws.onmessage = (ev) => {
+      let msg;
+      try { msg = JSON.parse(ev.data); } catch { return; }
+      if (msg.type === 'paired') finish(onPaired, msg.key);
+    };
+    ws.onclose = (ev) => {
+      if (done) return;
+      if (ev.code === 4000) finish(onExpired);
+      else { poll(); startPolling(); }
+    };
+  } catch {
+    startPolling();
+  }
+  return { cancel: () => { done = true; clearInterval(pollTimer); clearInterval(pingTimer); try { ws?.close(); } catch { /* ignore */ } } };
+}
+
+// ---- Sharing ----
+
+export const TV_STORAGE_KEY = 'highhand:tv';
+
+/** Native share sheet when available (phones), otherwise copy. Returns 'shared' | 'copied' | 'failed'. */
+export async function shareLink(url, title) {
+  if (navigator.share) {
+    try {
+      await navigator.share({ title, url });
+      return 'shared';
+    } catch (e) {
+      if (e && e.name === 'AbortError') return 'cancelled';
+    }
+  }
+  return (await copyText(url)) ? 'copied' : 'failed';
+}
+
+/** Render a QR code for `text` into `el` (needs /js/vendor/qrcode.js loaded). */
+export function renderQr(el, text) {
+  if (typeof window.qrcode !== 'function') return;
+  const qr = window.qrcode(0, 'M');
+  qr.addData(text);
+  qr.make();
+  // SVG markup is generated locally by the QR library from our own URL.
+  el.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+  const svg = el.querySelector('svg');
+  if (svg) svg.setAttribute('role', 'img');
+}

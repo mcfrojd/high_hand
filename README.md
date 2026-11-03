@@ -13,6 +13,17 @@ ___
 3. Uppdatera kort, hand, innehavare och antal i admin och klicka på **Spara**. Skärmen uppdateras direkt.
    I menyn (☰) kan du ändra klubbnamn, språk och bakgrund.
 
+**Få upp skärmen på TV:n (Chromecast med Google TV, smart-TV, platta):**
+1. Öppna **highhand.se/tv** i TV:ns webbläsare. Bokmärk gärna sidan, så räcker det i fortsättningen.
+2. TV:n visar en sexsiffrig kod.
+3. I admin på mobilen trycker du på menyn ☰, väljer **Koppla skärm** och skriver in koden. TV:n byter direkt till din high hand.
+
+Koden gäller i 10 minuter och kan bara användas en gång.
+När nyckeln går ut återgår en kopplad TV automatiskt till `/tv` och visar en ny kod.
+Om TV:ns senaste skärm fortfarande är aktiv visar `/tv` även en knapp för att fortsätta till den.
+
+**Dela med mobil och platta:** på startsidan och i admin-menyn finns QR-koder för båda länkarna och en **Dela**-knapp. Dela-knappen öppnar telefonens vanliga delningsmeny, eller kopierar länken på en dator.
+
 Nyckeln **raderas automatiskt 48 timmar efter att den skapades**. Spara länkarna, för de kan inte återskapas.
 Den som känner till nyckeln kan öppna både skärmen och admin.
 
@@ -28,6 +39,7 @@ ___
 src/worker.js     routing + API (/api/session, /api/<key>/state, /api/<key>/ws)
 src/session.js    Durable Object: lagring, WebSocket, 48 h-utgång
 src/registry.js   logg för dashboarden (30 dagar)
+src/pairing.js    TV-koppling med 6-siffrig kod (/tv)
 src/model.js      validering av alla värden
 public/           startsida, display.html (skärm), admin.html, css, js, bilder
 ```

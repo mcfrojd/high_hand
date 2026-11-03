@@ -2,8 +2,10 @@ import { cleanLang, cleanText, ValidationError } from './model.js';
 
 export { HighHandSession } from './session.js';
 export { Registry } from './registry.js';
+export { Pairing } from './pairing.js';
 
 const KEY_RE = /^[A-Za-z0-9]{12}$/;
+const CODE_RE = /^\d{6}$/;
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 const MAX_BODY = 2048;
 
@@ -58,8 +60,60 @@ function stubFor(env, key) {
   return env.SESSIONS.get(env.SESSIONS.idFromName(key));
 }
 
+/** Uniform 6-digit code, e.g. "048213". */
+function newCode() {
+  const buf = new Uint32Array(1);
+  const limit = Math.floor(0x100000000 / 1e6) * 1e6;
+  do crypto.getRandomValues(buf); while (buf[0] >= limit);
+  return String(buf[0] % 1e6).padStart(6, '0');
+}
+
+function pairingStub(env, code) {
+  return env.PAIRING.get(env.PAIRING.idFromName(code));
+}
+
+/** /api/pair, /api/pair/<code>, /api/pair/<code>/ws */
+async function handlePair(request, env, parts) {
+  const method = request.method;
+  if (parts.length === 2) {
+    if (method !== 'POST') return json({ error: 'method_not_allowed' }, 405);
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const code = newCode();
+      const p = await pairingStub(env, code).create();
+      if (p) return json({ code, expiresAt: p.expiresAt }, 201);
+    }
+    return json({ error: 'try_again' }, 503);
+  }
+  const code = parts[2];
+  if (!CODE_RE.test(code)) return json({ error: 'not_found' }, 404);
+  const stub = pairingStub(env, code);
+
+  if (parts.length === 4 && parts[3] === 'ws') {
+    if (request.headers.get('Upgrade') !== 'websocket') return json({ error: 'expected_websocket' }, 426);
+    return stub.fetch(request);
+  }
+  if (parts.length !== 3) return json({ error: 'not_found' }, 404);
+  if (method === 'GET') return json(await stub.poll());
+  if (method === 'POST') {
+    let key;
+    try {
+      key = (await readJson(request))?.key;
+    } catch (e) {
+      return json({ error: 'invalid', field: e.field }, 400);
+    }
+    if (typeof key !== 'string' || !KEY_RE.test(key)) return json({ error: 'invalid', field: 'key' }, 400);
+    // Only live sessions can be sent to a TV.
+    if (!(await stubFor(env, key).getState())) return json({ error: 'session_not_found' }, 404);
+    if (!(await stub.claim(key))) return json({ error: 'code_not_found' }, 404);
+    return json({ ok: true });
+  }
+  return json({ error: 'method_not_allowed' }, 405);
+}
+
 async function handleApi(request, env, parts) {
   const method = request.method;
+
+  if (parts[1] === 'pair') return handlePair(request, env, parts);
 
   // POST /api/session
   if (parts.length === 2 && parts[1] === 'session') {

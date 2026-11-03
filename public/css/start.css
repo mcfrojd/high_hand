@@ -213,3 +213,39 @@ a {
 .error {
     color: var(--error);
 }
+
+.qr-row {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.qr-row figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.qr-row figcaption {
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.qr {
+    width: 150px;
+    background: #fff;
+    border-radius: 6px;
+    padding: 4px;
+    line-height: 0;
+}
+
+.qr svg {
+    width: 100%;
+    height: auto;
+}
+
+.link-row .btn {
+    padding: 10px 12px;
+}

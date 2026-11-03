@@ -26,6 +26,16 @@
     <div id="menuOverlay" class="menu-overlay" role="dialog" aria-labelledby="settingsTitle">
         <button id="closeMenu" class="close-btn" aria-label="Stäng">&times;</button>
         <div class="menu-content">
+            <h2 data-i18n="pairTitle">Koppla skärm</h2>
+            <p class="small" data-i18n="pairHelp">Öppna highhand.se/tv på TV:n och skriv in koden som visas där.</p>
+            <form id="pairForm" class="pair-form">
+                <input type="text" id="pairCode" inputmode="numeric" autocomplete="one-time-code" maxlength="7"
+                    placeholder="123 456" aria-label="Kod från TV:n" >
+                <button type="submit" class="btn primary" id="pairButton" data-i18n="pairButton">Koppla</button>
+            </form>
+            <p class="small pair-status" id="pairStatus" role="status"></p>
+
+            <hr>
             <h2 id="settingsTitle" data-i18n="settings">Inställningar</h2>
             <label for="club" data-i18n="club">Klubbnamn</label>
             <input type="text" id="club" maxlength="40" autocomplete="off">
@@ -43,12 +53,17 @@
             <div class="link-row">
                 <code id="displayLink"></code>
                 <button class="btn small-btn" data-copy="displayLink" data-i18n="copy">Kopiera</button>
+                <button class="btn small-btn" data-share="displayLink" data-i18n="share">Dela</button>
             </div>
+            <div class="qr" id="displayQr" aria-label="QR"></div>
             <p class="small" data-i18n="adminLink">Adminlänk</p>
             <div class="link-row">
                 <code id="adminLink"></code>
                 <button class="btn small-btn" data-copy="adminLink" data-i18n="copy">Kopiera</button>
+                <button class="btn small-btn" data-share="adminLink" data-i18n="share">Dela</button>
             </div>
+            <div class="qr" id="adminQr" aria-label="QR"></div>
+            <p class="small" data-i18n="qrHint">Skanna för att öppna på en annan enhet</p>
             <p class="small"><span data-i18n="expiresAt">Nyckeln upphör</span>: <strong id="expiresAt"></strong></p>
         </div>
     </div>
@@ -86,8 +101,9 @@
         </div>
     </div>
 
+    <script src="/js/vendor/qrcode.js"></script>
     <script type="module">
-        import { getKey, fetchState, saveState, links, copyText, removeOldServiceWorkers } from '/js/api.js';
+        import { getKey, fetchState, saveState, links, copyText, removeOldServiceWorkers, pairScreen, parseCode, shareLink, renderQr } from '/js/api.js';
         import { applyI18n, strings, formatTime } from '/js/i18n.js';
         import { CARD_VALUES, SUITS, evaluateHand, isTaken, isValueFullyTaken, pickSuit } from '/js/cards.js';
 
@@ -171,6 +187,10 @@
             $('clubTitle').textContent = st.club;
             $('expiresAt').textContent = formatTime(st.expiresAt, st.lang);
             const l = links(key);
+            if ($('displayLink').textContent !== l.display) {
+                renderQr($('displayQr'), l.display);
+                renderQr($('adminQr'), l.admin);
+            }
             $('displayLink').textContent = l.display;
             $('adminLink').textContent = l.admin;
             document.title = st.club ? `${st.club} – HH Admin` : 'HH Admin';
@@ -294,6 +314,50 @@
             $('menuOverlay').classList.contains('active') ? closeMenu() : openMenu();
         });
         $('closeMenu').addEventListener('click', closeMenu);
+
+        for (const btn of document.querySelectorAll('[data-share]')) {
+            btn.addEventListener('click', async () => {
+                const s = strings(state?.lang);
+                const res = await shareLink($(btn.dataset.share).textContent, state?.club ? `${state.club} – High Hand` : 'High Hand');
+                if (res === 'shared' || res === 'copied') {
+                    btn.textContent = res === 'shared' ? s.shared : s.copied;
+                    setTimeout(() => { btn.textContent = s.share; }, 1500);
+                }
+            });
+        }
+
+        $('pairForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const s = strings(state?.lang);
+            const el = $('pairStatus');
+            const code = parseCode($('pairCode').value);
+            el.className = 'small pair-status';
+            if (!code) {
+                el.textContent = s.pairBadCode;
+                el.classList.add('error');
+                return;
+            }
+            $('pairButton').disabled = true;
+            try {
+                const r = await pairScreen(code, key);
+                if (r.ok) {
+                    el.textContent = s.pairOk;
+                    el.classList.add('ok');
+                    $('pairCode').value = '';
+                } else if (r.data.error === 'session_not_found') {
+                    showExpired();
+                    closeMenu();
+                } else {
+                    el.textContent = s.pairNotFound;
+                    el.classList.add('error');
+                }
+            } catch {
+                el.textContent = s.saveFailed;
+                el.classList.add('error');
+            } finally {
+                $('pairButton').disabled = false;
+            }
+        });
 
         for (const btn of document.querySelectorAll('[data-copy]')) {
             btn.addEventListener('click', async () => {

@@ -343,3 +343,40 @@ select:disabled {
 .expired a {
     color: #f5b411;
 }
+
+.pair-form {
+    display: flex;
+    gap: 8px;
+}
+
+.pair-form input {
+    flex: 1;
+    min-width: 0;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 1.3em;
+    letter-spacing: 0.1em;
+    text-align: center;
+}
+
+.pair-status.ok {
+    color: #38fab3;
+}
+
+.pair-status.error {
+    color: #ff6b6b;
+}
+
+.qr {
+    width: 150px;
+    max-width: 60%;
+    align-self: center;
+    background: #fff;
+    border-radius: 6px;
+    padding: 4px;
+    line-height: 0;
+}
+
+.qr svg {
+    width: 100%;
+    height: auto;
+}

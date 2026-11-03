@@ -28,7 +28,7 @@
     <div id="offline" class="offline" hidden></div>
 
     <script type="module">
-        import { getKey, connect } from '/js/api.js';
+        import { getKey, connect, TV_STORAGE_KEY } from '/js/api.js';
         import { applyI18n, strings } from '/js/i18n.js';
 
         const key = getKey();
@@ -88,6 +88,10 @@
             $('message').hidden = false;
             $('messageText').textContent = strings(lang).expired;
             $('messageLink').hidden = false;
+            // A TV that was connected via /tv goes back there to get a new code.
+            let fromTv = false;
+            try { fromTv = localStorage.getItem(TV_STORAGE_KEY) === key; } catch { /* ignore */ }
+            if (fromTv) setTimeout(() => location.replace('/tv'), 8000);
         }
 
         new ResizeObserver(optimizeTextSize).observe($('handContainer'));
