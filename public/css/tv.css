@@ -59,12 +59,4 @@ body {
     font-weight: 700;
 }
 
-.tv-continue {
-    font-size: clamp(16px, 3vh, 32px);
-    padding: 1.2vh 3vw;
-}
 
-.tv-continue:focus {
-    outline: 4px solid #fff;
-    outline-offset: 3px;
-}
