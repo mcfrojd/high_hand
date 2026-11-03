@@ -85,16 +85,13 @@
         </section>
     </main>
 
-    <footer class="site-footer">
-        <span data-i18n="builtBy">Byggd av</span> <strong>McFrojd Software</strong>
-        <span aria-hidden="true">·</span>
-        <a href="https://github.com/mcfrojd/high_hand" rel="noopener" data-i18n="sourceCode">Källkod</a>
-    </footer>
+    <footer class="site-footer" id="siteFooter"></footer>
 
     <script src="/js/vendor/qrcode.js"></script>
     <script type="module">
         import { createSession, links, parseKey, copyText, removeOldServiceWorkers, shareLink, showQr } from '/js/api.js';
         import { applyI18n, strings, browserLang, formatTime } from '/js/i18n.js';
+        import { renderFooter } from '/js/footer.js';
 
         const $ = (id) => document.getElementById(id);
         const STORAGE_KEY = 'highhand:last';
@@ -122,6 +119,7 @@
         function setLang(l) {
             lang = l;
             applyI18n(lang);
+            renderFooter($('siteFooter'), lang);
             for (const b of document.querySelectorAll('[data-lang]')) {
                 b.setAttribute('aria-pressed', String(b.dataset.lang === lang));
             }
