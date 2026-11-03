@@ -6,7 +6,7 @@ export const HANDS = [
   'royal_flush', 'straight_flush', 'four_kind', 'full_house', 'flush',
   'straight', 'three_kind', 'two_pair', 'pair', 'side_pot',
 ];
-export const BACKGROUNDS = ['table.jpg', 'room.jpg'];
+export const BACKGROUNDS = ['room.jpg', 'table.jpg']; // first = default
 export const LANGS = ['sv', 'en'];
 
 export const MAX_TEXT = 40;
