@@ -1,0 +1,139 @@
+.page.wide {
+    max-width: 1200px;
+}
+
+.dash-header,
+.section-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dash-header h1 {
+    color: var(--accent);
+    font-size: 1.5rem;
+}
+
+.dash-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.dash-actions input {
+    width: auto;
+    min-width: 220px;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.count {
+    color: var(--muted);
+    font-weight: normal;
+}
+
+.table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+}
+
+th,
+td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    white-space: nowrap;
+}
+
+th {
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+tbody tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.mono {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+}
+
+.muted {
+    color: var(--muted);
+}
+
+.hand-name {
+    font-weight: 600;
+}
+
+.mini-cards {
+    display: flex;
+    gap: 2px;
+    margin-top: 4px;
+}
+
+.mini-cards img {
+    height: 34px;
+    width: auto;
+}
+
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    border: 1px solid var(--border);
+    color: var(--muted);
+}
+
+.badge.on {
+    border-color: #38fab3;
+    color: #38fab3;
+}
+
+.empty {
+    padding: 8px 0;
+}

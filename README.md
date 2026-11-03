@@ -27,6 +27,7 @@ ___
 ```
 src/worker.js     routing + API (/api/session, /api/<key>/state, /api/<key>/ws)
 src/session.js    Durable Object: lagring, WebSocket, 48 h-utgång
+src/registry.js   logg för dashboarden (30 dagar)
 src/model.js      validering av alla värden
 public/           startsida, display.html (skärm), admin.html, css, js, bilder
 ```
@@ -54,6 +55,28 @@ Koppla deploy via Cloudflares GitHub-integration som ovan, så behövs ingen tok
 Om du hellre vill använda GitHub Actions lägger du `CLOUDFLARE_API_TOKEN` som en **GitHub-secret**, aldrig i koden.
 
 **Gratisnivån** räcker gott: 100 000 Worker-requests per dag och Durable Objects med SQLite-lagring ingår.
+
+___
+### Privat dashboard
+
+`https://highhand.se/dashboard/` visar två saker:
+- **aktiva sessioner**
+- **en logg över de senaste 30 dagarna** med datum, klubbnamn, high hand (med kort), innehavare och antal
+
+Loggen sparar den **senast sparade riktiga handen**, så en återställning efter turneringen skriver inte över den. Loggen kan filtreras och exporteras som CSV.
+Rader äldre än 30 dagar raderas automatiskt.
+
+Dashboarden är avstängd (404) tills du har satt ett lösenord. Lösenordet sparas som en **Cloudflare secret** och aldrig i repot:
+
+```bash
+npx wrangler secret put DASHBOARD_PASSWORD
+```
+
+Du kan också sätta det i Cloudflare-dashboarden under **Workers → highhand → Settings → Variables and Secrets** (typ *Secret*).
+Logga in med användarnamnet `admin` och ditt lösenord.
+Lägg gärna till en WAF-regel för rate limiting även på `/dashboard` och `/api/dashboard/`.
+
+Lokalt lägger du `DASHBOARD_PASSWORD=något` i `.dev.vars`.
 
 ___
 ### Om den gamla Google Sheets-versionen

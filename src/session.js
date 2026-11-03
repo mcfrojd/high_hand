@@ -1,5 +1,5 @@
 import { DurableObject } from 'cloudflare:workers';
-import { cleanPatch, defaultState, DEFAULT_TTL_MS } from './model.js';
+import { cleanPatch, defaultState, isRealHand, DEFAULT_TTL_MS } from './model.js';
 
 const CLOSE_EXPIRED = 4000;
 
@@ -30,13 +30,27 @@ export class HighHandSession extends DurableObject {
     return state;
   }
 
+  registry() {
+    return this.env.REGISTRY.get(this.env.REGISTRY.idFromName('global'));
+  }
+
+  /** Logging must never break the session itself. */
+  async log(fn) {
+    try {
+      await fn(this.registry());
+    } catch (e) {
+      console.error('registry log failed', e);
+    }
+  }
+
   /** Create the session. Returns null if the key is already taken. */
-  async init(lang, club) {
+  async init(key, lang, club) {
     if (await this.ctx.storage.get('state')) return null;
     const now = Date.now();
-    const state = defaultState({ lang, club, now, ttlMs: this.ttlMs() });
+    const state = { key, ...defaultState({ lang, club, now, ttlMs: this.ttlMs() }) };
     await this.ctx.storage.put('state', state);
     await this.ctx.storage.setAlarm(state.expiresAt);
+    await this.log((r) => r.recordCreate(key, state));
     return state;
   }
 
@@ -53,6 +67,7 @@ export class HighHandSession extends DurableObject {
     const next = { ...state, ...clean };
     await this.ctx.storage.put('state', next);
     this.broadcast({ type: 'state', state: next });
+    if (next.key) await this.log((r) => r.recordUpdate(next.key, next, isRealHand(next)));
     return { state: next };
   }
 

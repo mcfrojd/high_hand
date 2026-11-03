@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="sv">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard – High Hand</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" href="/images/misc/icon-192.png">
+    <link rel="stylesheet" href="/css/start.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+
+<body>
+    <main class="page wide">
+        <header class="dash-header">
+            <h1>High Hand – dashboard</h1>
+            <div class="dash-actions">
+                <span class="small" id="updated"></span>
+                <button type="button" class="btn" id="refresh">Uppdatera</button>
+            </div>
+        </header>
+        <p class="error" id="error" role="alert" hidden></p>
+
+        <section class="stats" aria-label="Sammanfattning">
+            <div class="stat"><span class="stat-value" id="statActive">–</span><span class="stat-label">Aktiva nu</span></div>
+            <div class="stat"><span class="stat-value" id="statMonth">–</span><span class="stat-label">Sessioner, 30 dagar</span></div>
+            <div class="stat"><span class="stat-value" id="statClubs">–</span><span class="stat-label">Klubbar, 30 dagar</span></div>
+        </section>
+
+        <section class="card">
+            <h2>Aktiva sessioner <span class="count" id="activeCount"></span></h2>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Skapad</th>
+                            <th>Klubb</th>
+                            <th>High hand</th>
+                            <th>Innehavare</th>
+                            <th class="num">Antal</th>
+                            <th class="num">Sparningar</th>
+                            <th>Upphör</th>
+                            <th>Skärm</th>
+                        </tr>
+                    </thead>
+                    <tbody id="activeBody"></tbody>
+                </table>
+            </div>
+            <p class="empty small" id="activeEmpty" hidden>Inga aktiva sessioner just nu.</p>
+        </section>
+
+        <section class="card">
+            <div class="section-head">
+                <h2>Senaste 30 dagarna <span class="count" id="recentCount"></span></h2>
+                <div class="dash-actions">
+                    <input type="search" id="filter" placeholder="Filtrera på klubb eller innehavare" aria-label="Filtrera">
+                    <button type="button" class="btn" id="csv">Exportera CSV</button>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Datum</th>
+                            <th>Klubb</th>
+                            <th>High hand</th>
+                            <th>Innehavare</th>
+                            <th class="num">Antal</th>
+                            <th class="num">Sparningar</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentBody"></tbody>
+                </table>
+            </div>
+            <p class="empty small" id="recentEmpty" hidden>Inga sessioner de senaste 30 dagarna.</p>
+        </section>
+    </main>
+
+    <script type="module">
+        import { strings, formatTime } from '/js/i18n.js';
+
+        const s = strings('sv');
+        const $ = (id) => document.getElementById(id);
+        let data = { active: [], recent: [] };
+
+        function el(tag, props = {}, children = []) {
+            const e = document.createElement(tag);
+            for (const [k, v] of Object.entries(props)) {
+                if (k === 'class') e.className = v;
+                else if (k === 'text') e.textContent = v;
+                else e.setAttribute(k, v);
+            }
+            for (const c of [].concat(children)) if (c) e.append(c);
+            return e;
+        }
+
+        const date = (ts) => formatTime(ts, 'sv');
+        const handName = (r) => (r.hand ? s.hands[r.hand] || r.hand : '');
+
+        function handCell(r) {
+            if (!r.hand) return el('td', { class: 'muted', text: 'Ingen hand sparad' });
+            const cards = el('div', { class: 'mini-cards' }, (r.cards || []).map((c) =>
+                el('img', { src: `/images/cards/${c}.png`, alt: c, loading: 'lazy' })));
+            return el('td', {}, [el('div', { class: 'hand-name', text: handName(r) }), cards]);
+        }
+
+        function clubCell(r) {
+            return el('td', {}, [
+                el('div', { text: r.club || '–' }),
+                el('div', { class: 'small mono', text: `${r.key} · ${r.lang}` }),
+            ]);
+        }
+
+        function renderActive(rows) {
+            $('activeBody').replaceChildren(...rows.map((r) => el('tr', {}, [
+                el('td', { text: date(r.createdAt) }),
+                clubCell(r),
+                handCell(r),
+                el('td', { text: r.holder || '' }),
+                el('td', { class: 'num', text: r.count || '' }),
+                el('td', { class: 'num', text: String(r.saves) }),
+                el('td', { text: date(r.expiresAt) }),
+                el('td', {}, el('a', { href: `/${r.key}/`, target: '_blank', rel: 'noopener', text: 'Öppna' })),
+            ])));
+            $('activeCount').textContent = `(${rows.length})`;
+            $('activeEmpty').hidden = rows.length > 0;
+        }
+
+        function filtered() {
+            const q = $('filter').value.trim().toLowerCase();
+            if (!q) return data.recent;
+            return data.recent.filter((r) => `${r.club} ${r.holder || ''}`.toLowerCase().includes(q));
+        }
+
+        function renderRecent() {
+            const rows = filtered();
+            $('recentBody').replaceChildren(...rows.map((r) => el('tr', {}, [
+                el('td', { text: date(r.createdAt) }),
+                clubCell(r),
+                handCell(r),
+                el('td', { text: r.holder || '' }),
+                el('td', { class: 'num', text: r.count || '' }),
+                el('td', { class: 'num', text: String(r.saves) }),
+                el('td', {}, el('span', { class: r.active ? 'badge on' : 'badge', text: r.active ? 'Aktiv' : 'Utgången' })),
+            ])));
+            $('recentCount').textContent = `(${rows.length})`;
+            $('recentEmpty').hidden = rows.length > 0;
+        }
+
+        function render() {
+            renderActive(data.active);
+            renderRecent();
+            $('statActive').textContent = data.active.length;
+            $('statMonth').textContent = data.recent.length;
+            $('statClubs').textContent = new Set(data.recent.map((r) => r.club.trim().toLowerCase()).filter(Boolean)).size;
+            $('updated').textContent = `Uppdaterad ${new Date().toLocaleTimeString('sv-SE')}`;
+        }
+
+        async function load() {
+            try {
+                const res = await fetch('/api/dashboard/sessions', { cache: 'no-store', credentials: 'same-origin' });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                data = await res.json();
+                $('error').hidden = true;
+                render();
+            } catch (e) {
+                $('error').textContent = `Kunde inte hämta data (${e.message}).`;
+                $('error').hidden = false;
+            }
+        }
+
+        function csvCell(v) {
+            const t = String(v ?? '');
+            // Prevent spreadsheet formula injection and quote everything.
+            const safe = /^[=+\-@\t\r]/.test(t) ? `'${t}` : t;
+            return `"${safe.replace(/"/g, '""')}"`;
+        }
+
+        $('csv').addEventListener('click', () => {
+            const header = ['Datum', 'Klubb', 'Nyckel', 'Språk', 'High hand', 'Kort', 'Innehavare', 'Antal', 'Sparningar', 'Upphör', 'Status'];
+            const lines = filtered().map((r) => [
+                new Date(r.createdAt).toISOString(), r.club, r.key, r.lang, handName(r), (r.cards || []).join(' '),
+                r.holder || '', r.count || '', r.saves, new Date(r.expiresAt).toISOString(), r.active ? 'Aktiv' : 'Utgången',
+            ].map(csvCell).join(';'));
+            const blob = new Blob(['﻿' + [header.map(csvCell).join(';'), ...lines].join('\r\n')], { type: 'text/csv;charset=utf-8' });
+            const a = el('a', { href: URL.createObjectURL(blob), download: `highhand-${new Date().toISOString().slice(0, 10)}.csv` });
+            document.body.append(a);
+            a.click();
+            setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+        });
+
+        $('filter').addEventListener('input', renderRecent);
+        $('refresh').addEventListener('click', load);
+        setInterval(load, 60000);
+        load();
+    </script>
+</body>
+
+</html>

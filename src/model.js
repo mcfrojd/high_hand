@@ -85,3 +85,8 @@ export function cleanPatch(patch) {
   if ('lang' in patch) out.lang = cleanLang(patch.lang);
   return out;
 }
+
+/** A "real" high hand: not the side-pot/reset state and at least one face-up card. */
+export function isRealHand(state) {
+  return state.hand !== 'side_pot' && Array.isArray(state.cards) && state.cards.some((c) => c !== 'nn');
+}
