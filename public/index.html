@@ -25,6 +25,17 @@
             </div>
         </header>
 
+        <details class="card how">
+            <summary data-i18n="howTitle">Så fungerar det</summary>
+            <ol class="how-steps">
+                <li><strong data-i18n="how1Title">Skapa</strong> <span data-i18n="how1">Välj språk, skriv klubbens namn och klicka på Skapa. Du får en skärmlänk och en adminlänk. Spara dem!</span></li>
+                <li><strong data-i18n="how2Title">Visa på TV:n</strong> <span data-i18n="how2">Öppna highhand.se/tv i TV:ns webbläsare. Skriv in koden som visas under Koppla skärm i admin, så byter TV:n till din high hand.</span></li>
+                <li><strong data-i18n="how3Title">Uppdatera</strong> <span data-i18n="how3">I admin skriver du spelarens namn och väljer de fem korten. Handen räknas ut automatiskt. Tryck på Spara ny högsta hand, så syns den direkt på skärmen.</span></li>
+                <li><strong data-i18n="how4Title">Efter turneringen</strong> <span data-i18n="how4">Tryck på Reset. Nyckeln raderas automatiskt efter 48 timmar. Skapa en ny inför nästa turnering.</span></li>
+            </ol>
+            <p class="small" data-i18n="howTip">Tips: använd Dela eller QR-kod för att öppna länkarna på en annan mobil eller platta.</p>
+        </details>
+
         <section class="card" id="createCard">
             <h2 data-i18n="createTitle">Skapa en ny high hand-skärm</h2>
             <form id="createForm">
@@ -71,6 +82,12 @@
             <p class="small" id="lastKeyRow" hidden><span data-i18n="lastKey">Senast skapade nyckel</span>: <a id="lastKey"></a></p>
         </section>
     </main>
+
+    <footer class="site-footer">
+        <span data-i18n="builtBy">Byggd av</span> <strong>McFrojd Software</strong>
+        <span aria-hidden="true">·</span>
+        <a href="https://github.com/mcfrojd/high_hand" rel="noopener" data-i18n="sourceCode">Källkod</a>
+    </footer>
 
     <script src="/js/vendor/qrcode.js"></script>
     <script type="module">

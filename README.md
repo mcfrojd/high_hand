@@ -1,108 +1,61 @@
-# HIGH HAND
+# High Hand
 
-Visa kvällens high hand på en skärm (TV i fullskärm) och uppdatera den från mobilen.
-Flera klubbar kan använda tjänsten samtidigt. Var och en får en egen nyckel.
+Visa kvällens high hand på en TV-skärm och uppdatera den från mobilen. Det är gratis och kräver inget konto.
 
-___
-### Användning
+**👉 [highhand.se](https://highhand.se)**
 
-1. Gå till **https://highhand.se** och välj språk (svenska/engelska). Fyll i klubbnamn om du vill och klicka på **Skapa**.
-2. Du får två länkar:
-   - **Skärm:** `https://highhand.se/<nyckel>/` öppnas på TV:n i fullskärm.
-   - **Admin:** `https://highhand.se/<nyckel>/admin/` öppnas på mobilen.
-3. I admin fyller du i spelarnamn och väljer de fem korten. Handen räknas ut automatiskt, och samma kort kan inte väljas två gånger.
-   Klicka på **Spara ny högsta hand**, så uppdateras skärmen direkt.
-   **Antal deltagare** (− / +) sparas direkt utan att du behöver klicka på Spara. **Reset** nollställer skärmen efter turneringen.
-   I menyn (☰) kan du ändra klubbnamn, språk och bakgrund.
+![High hand på skärmen](screenshots/hh-aktuell.jpg)
 
-**Få upp skärmen på TV:n (Chromecast med Google TV, smart-TV, platta):**
-1. Öppna **highhand.se/tv** i TV:ns webbläsare. Bokmärk gärna sidan, så räcker det i fortsättningen.
+## Kom igång
+
+1. Gå till **[highhand.se](https://highhand.se)**, välj språk (svenska eller engelska) och skriv gärna in klubbens namn. Klicka på **Skapa**.
+2. Du får två länkar. **Spara dem**, för de kan inte återskapas:
+   - **Skärmlänk** `highhand.se/<nyckel>/` visar high hand på TV:n.
+   - **Adminlänk** `highhand.se/<nyckel>/admin/` används för att uppdatera från mobilen.
+
+Varje länk har knapparna **Kopiera**, **Dela** och **QR-kod**, så att det är enkelt att öppna dem på en annan enhet.
+
+## Visa på TV:n
+
+Det enklaste sättet, utan att skriva in någon lång adress på TV:n:
+
+![Kodsidan på TV:n](screenshots/hh-tv.jpg)
+
+1. Öppna **highhand.se/tv** i TV:ns webbläsare. Bokmärk sidan, så räcker det nästa gång.
 2. TV:n visar en sexsiffrig kod.
-3. I admin på mobilen scrollar du ner till **Koppla skärm** och skriver in koden. TV:n byter direkt till din high hand.
+3. Öppna admin på mobilen, scrolla ner till **Koppla skärm** och skriv in koden. TV:n byter direkt till din high hand.
 
 Koden gäller i 10 minuter och kan bara användas en gång.
-När nyckeln går ut återgår en kopplad TV automatiskt till `/tv` och visar en ny kod.
-Om TV:ns senaste skärm fortfarande är aktiv visar `/tv` även en knapp för att fortsätta till den.
+Om TV:ns senaste skärm fortfarande är aktiv visar `highhand.se/tv` en knapp för att fortsätta till den.
+När en nyckel går ut återgår TV:n automatiskt till kodsidan.
 
-**Dela med mobil och platta:** på startsidan och i admin-menyn finns QR-koder för båda länkarna och en **Dela**-knapp. Dela-knappen öppnar telefonens vanliga delningsmeny, eller kopierar länken på en dator.
+Det fungerar också att öppna skärmlänken direkt i valfri webbläsare och visa den i fullskärm.
 
-Nyckeln **raderas automatiskt 48 timmar efter att den skapades**. Spara länkarna, för de kan inte återskapas.
-Den som känner till nyckeln kan öppna både skärmen och admin.
+## Uppdatera high hand
 
-___
-### Teknik
+![Admin](screenshots/hh-admin.jpg)
 
-- **Cloudflare Workers** med statiska filer (`public/`) och en **Durable Object** per nyckel (`src/session.js`).
-- Skärmen får ändringar via **WebSocket** (hibernation). Den frågar alltså inte servern hela tiden, och inaktiva skärmar kostar ingenting.
-- En alarm i Durable Objecten raderar all data efter 48 h.
-- Ingen Google Sheets, ingen databas att sätta upp och **inga hemligheter eller API-nycklar** behövs.
+I admin gör du så här:
 
-```
-src/worker.js     routing + API (/api/session, /api/<key>/state, /api/<key>/ws)
-src/session.js    Durable Object: lagring, WebSocket, 48 h-utgång
-src/registry.js   logg för dashboarden (30 dagar)
-src/pairing.js    TV-koppling med 6-siffrig kod (/tv)
-src/model.js      validering av alla värden
-public/           startsida, display.html (skärm), admin.html, css, js, bilder
-```
+- **Spelarnamn:** namnet på den som har handen.
+- **Antal deltagare:** använd − och +. Ändringen syns direkt på skärmen.
+- **Kort:** välj värde och färg för de fem korten.
+  - Samma kort kan inte väljas två gånger.
+  - Nästa kort föreslår samma färg som kortet före, så det går snabbt att mata in en färg eller färgstege.
+- **Handen** räknas ut automatiskt när alla fem kort är valda. Du kan ändra den för hand om det behövs.
+- Klicka på **Spara ny högsta hand**. Skärmen uppdateras direkt.
+- **Reset** nollställer skärmen efter turneringen.
 
-___
-### Lokal utveckling
+I menyn **☰** kan du ändra klubbnamn, språk (svenska eller engelska) och bakgrund.
 
-```bash
-npm install
-npx wrangler dev
-```
+## Bra att veta
 
-Öppna http://localhost:8787. Om du vill testa utgången snabbt kan du skapa filen `.dev.vars` (den ignoreras av git) med `TTL_MS=30000`.
+- Flera klubbar kan använda tjänsten samtidigt. Varje skärm har sin egen nyckel.
+- En nyckel **raderas automatiskt 48 timmar** efter att den skapats. Skapa en ny inför nästa turnering.
+- Den som känner till nyckeln kan öppna både skärmen och admin. Dela därför adminlänken bara med dem som ska uppdatera.
+- Klubbnamn och high hand sparas i upp till 30 dagar för statistik.
 
-___
-### Driftsättning (gratis)
+## Om projektet
 
-1. Logga in på Cloudflare och gå till **Workers & Pages → Create → Import a repository**. Välj det här repot.
-   Build command lämnas tomt och deploy command är `npx wrangler deploy`.
-2. Lägg till domänen under **Settings → Domains & Routes → Custom domain**: `highhand.se`.
-3. Rekommenderat skydd mot missbruk är en gratis regel under **Security → WAF → Rate limiting rules**:
-   `URI Path equals /api/session` och `Request Method equals POST`, max 5 requests per 10 sekunder per IP, åtgärd Block.
-
-Koppla deploy via Cloudflares GitHub-integration som ovan, så behövs ingen token i repot.
-Om du hellre vill använda GitHub Actions lägger du `CLOUDFLARE_API_TOKEN` som en **GitHub-secret**, aldrig i koden.
-
-**Gratisnivån** räcker gott: 100 000 Worker-requests per dag och Durable Objects med SQLite-lagring ingår.
-
-___
-### Privat dashboard
-
-`https://highhand.se/dashboard/` visar två saker:
-- **aktiva sessioner**
-- **en logg över de senaste 30 dagarna** med datum, klubbnamn, high hand (med kort), innehavare och antal
-
-Loggen sparar den **senast sparade riktiga handen**, så en återställning efter turneringen skriver inte över den. Loggen kan filtreras och exporteras som CSV.
-Rader äldre än 30 dagar raderas automatiskt.
-
-Dashboarden är avstängd (404) tills du har satt ett lösenord. Lösenordet sparas som en **Cloudflare secret** och aldrig i repot:
-
-```bash
-npx wrangler secret put DASHBOARD_PASSWORD
-```
-
-Du kan också sätta det i Cloudflare-dashboarden under **Workers → highhand → Settings → Variables and Secrets** (typ *Secret*).
-Logga in med användarnamnet `admin` och ditt lösenord.
-Lägg gärna till en WAF-regel för rate limiting även på `/dashboard` och `/api/dashboard/`.
-
-Lokalt lägger du `DASHBOARD_PASSWORD=något` i `.dev.vars`.
-
-___
-### Om den gamla Google Sheets-versionen
-
-Tidigare versioner av repot pekade på ett Google-ark och ett Apps Script. Länkarna finns kvar i git-historiken,
-och vem som helst med länken kan skriva till arket. Gör därför följande:
-- Arkivera eller ta bort Apps Script-driftsättningen (**Deploy → Manage deployments**).
-- Gör arket privat.
-
-___
-### Screenshots
-![hh aktuell](screenshots/hh-aktuell.jpg)
-![hh pre](screenshots/hh-pre.jpg)
-![hh admin](screenshots/hh-admin.jpg)
-___
+Byggd av **McFrojd Software**.
+Teknisk dokumentation för utveckling och drift finns i [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
