@@ -60,6 +60,21 @@ I admin gör du så här:
 - Klicka på **Spara ny högsta hand**. Skärmen uppdateras direkt.
 - **Reset** nollställer skärmen efter turneringen.
 
+### Meddelande före spel
+
+Under **Meddelande före spel** i admin kan du visa en text på skärmen innan turneringen har någon high hand, till exempel:
+
+> Idag spelar vi Pot Limit Omaha.
+> 1 re-entry är tillåten.
+> Om du vill vara med på high hand,
+> säg till när du köper in dig.
+
+1. Välj en mall (**No Limit Texas**, **Pot Limit Omaha** eller **Sviten (5-kort)**) eller skriv en egen text. Texten får vara högst 8 rader.
+2. Kryssa i **Visa på skärmen tills första handen sparas** och tryck **Spara meddelande**.
+
+Meddelandet visas i stället för korten tills den första riktiga high hand sparas, och döljs då automatiskt.
+Efter **Reset** visas det igen inför nästa turnering.
+
 <img src="screenshots/hh-admin-meny.jpg" alt="Admin-menyn" width="300" align="right">
 
 I menyn **☰** kan du ändra klubbnamn, språk (svenska eller engelska) och bakgrund.

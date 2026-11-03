@@ -683,3 +683,62 @@ body {
 .bg-status.error {
     color: #ff6b6b;
 }
+
+/* pre-game message */
+.switch-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.switch-row input {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--gold);
+    flex-shrink: 0;
+}
+
+.template-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.hh textarea {
+    width: 100%;
+    background: var(--field-bg);
+    border: 1px solid var(--field-border);
+    border-radius: 8px;
+    color: #f0f0f0;
+    padding: 10px 12px;
+    font: inherit;
+    font-size: 16px;
+    line-height: 1.4;
+    resize: vertical;
+}
+
+.hh textarea:focus {
+    outline: 2px solid var(--gold);
+    border-color: transparent;
+}
+
+.pregame-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.pregame-actions .small {
+    flex: 1;
+}
+
+.pregame-status.ok {
+    color: #38fab3;
+}
+
+.pregame-status.error {
+    color: #ff6b6b;
+}
