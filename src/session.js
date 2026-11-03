@@ -1,5 +1,5 @@
 import { DurableObject } from 'cloudflare:workers';
-import { cleanPatch, defaultState, isRealHand, DEFAULT_TTL_MS } from './model.js';
+import { cleanPatch, defaultState, isRealHand, BACKGROUNDS, CUSTOM_BG, DEFAULT_TTL_MS } from './model.js';
 
 const CLOSE_EXPIRED = 4000;
 
@@ -64,10 +64,49 @@ export class HighHandSession extends DurableObject {
     } catch (e) {
       return { error: 'invalid', field: e.field ?? 'body' };
     }
+    if (clean.background === CUSTOM_BG && !state.customBg) {
+      return { error: 'invalid', field: 'background' };
+    }
     const next = { ...state, ...clean };
     await this.ctx.storage.put('state', next);
     this.broadcast({ type: 'state', state: next });
     if (next.key) await this.log((r) => r.recordUpdate(next.key, next, isRealHand(next)));
+    return { state: next };
+  }
+
+  // ---- Custom background image ----
+  // Stored under one key ('bg') in this object's storage: a new upload
+  // replaces the old one, and expire() -> deleteAll() removes it with the session.
+
+  /** `bytes` is an already validated JPEG (ArrayBuffer). */
+  async setBackground(bytes) {
+    const state = await this.getState();
+    if (!state) return { error: 'not_found' };
+    const updatedAt = Date.now();
+    await this.ctx.storage.put('bg', { bytes, size: bytes.byteLength, updatedAt });
+    const next = { ...state, background: CUSTOM_BG, customBg: updatedAt };
+    await this.ctx.storage.put('state', next);
+    this.broadcast({ type: 'state', state: next });
+    return { state: next };
+  }
+
+  async getBackground() {
+    if (!(await this.getState())) return null;
+    const bg = await this.ctx.storage.get('bg');
+    return bg ? { bytes: bg.bytes, updatedAt: bg.updatedAt } : null;
+  }
+
+  async deleteBackground() {
+    const state = await this.getState();
+    if (!state) return { error: 'not_found' };
+    await this.ctx.storage.delete('bg');
+    const next = {
+      ...state,
+      customBg: null,
+      background: state.background === CUSTOM_BG ? BACKGROUNDS[0] : state.background,
+    };
+    await this.ctx.storage.put('state', next);
+    this.broadcast({ type: 'state', state: next });
     return { state: next };
   }
 

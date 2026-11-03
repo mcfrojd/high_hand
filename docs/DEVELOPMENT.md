@@ -8,6 +8,8 @@ För hur tjänsten används, se [README.md](../README.md).
 - **Cloudflare Workers** med statiska filer (`public/`) och en **Durable Object** per nyckel (`src/session.js`).
 - Skärmen får ändringar via **WebSocket** (hibernation). Den frågar alltså inte servern hela tiden, och inaktiva skärmar kostar ingenting.
 - En alarm i Durable Objecten raderar sessionens data efter 48 h.
+- **Egen bakgrundsbild** lagras i sessionens Durable Object under nyckeln `bg`. Webbläsaren skalar ned bilden till högst 1920 px JPEG före uppladdning, och servern godtar högst 1,5 MB.
+  Anropen är `PUT`, `GET` och `DELETE` på `/api/<key>/background`. En ny uppladdning skriver över den gamla, och bilden raderas tillsammans med sessionen.
 - Ingen databas att sätta upp och **inga hemligheter i repot**.
 
 ```

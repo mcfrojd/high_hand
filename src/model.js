@@ -7,6 +7,8 @@ export const HANDS = [
   'straight', 'three_kind', 'two_pair', 'pair', 'high_card', 'side_pot',
 ];
 export const BACKGROUNDS = ['room.jpg', 'table.jpg']; // first = default
+export const CUSTOM_BG = 'custom'; // uploaded image, stored in the session's Durable Object
+export const MAX_BG_BYTES = 1.5 * 1024 * 1024;
 export const LANGS = ['sv', 'en'];
 
 export const MAX_TEXT = 40;
@@ -81,7 +83,10 @@ export function cleanPatch(patch) {
     out.count = n;
   }
   if ('background' in patch) {
-    if (!BACKGROUNDS.includes(patch.background)) throw new ValidationError('background');
+    // 'custom' is only accepted when an image exists; the session checks that.
+    if (!BACKGROUNDS.includes(patch.background) && patch.background !== CUSTOM_BG) {
+      throw new ValidationError('background');
+    }
     out.background = patch.background;
   }
   if ('lang' in patch) out.lang = cleanLang(patch.lang);

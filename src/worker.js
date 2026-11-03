@@ -1,4 +1,4 @@
-import { cleanLang, cleanText, ValidationError } from './model.js';
+import { cleanLang, cleanText, ValidationError, MAX_BG_BYTES } from './model.js';
 
 export { HighHandSession } from './session.js';
 export { Registry } from './registry.js';
@@ -58,6 +58,44 @@ async function readJson(request) {
 
 function stubFor(env, key) {
   return env.SESSIONS.get(env.SESSIONS.idFromName(key));
+}
+
+/** GET / PUT / DELETE /api/<key>/background */
+async function handleBackground(request, stub) {
+  const method = request.method;
+  if (method === 'GET') {
+    const bg = await stub.getBackground();
+    if (!bg) return json({ error: 'not_found' }, 404);
+    return new Response(bg.bytes, {
+      headers: {
+        'Content-Type': 'image/jpeg',
+        // The screen requests ?v=<updatedAt>, so a new upload gets a new URL.
+        'Cache-Control': 'public, max-age=31536000, immutable',
+        'Content-Disposition': 'inline',
+        'X-Content-Type-Options': 'nosniff',
+        'X-Robots-Tag': 'noindex',
+      },
+    });
+  }
+  if (method === 'PUT') {
+    const declared = Number(request.headers.get('Content-Length') || 0);
+    if (declared > MAX_BG_BYTES) return json({ error: 'too_large' }, 413);
+    const bytes = await request.arrayBuffer();
+    if (bytes.byteLength > MAX_BG_BYTES) return json({ error: 'too_large' }, 413);
+    const head = new Uint8Array(bytes, 0, Math.min(3, bytes.byteLength));
+    if (head.length < 3 || head[0] !== 0xff || head[1] !== 0xd8 || head[2] !== 0xff) {
+      return json({ error: 'not_jpeg' }, 415);
+    }
+    const result = await stub.setBackground(bytes);
+    if (result.error) return json(result, 404);
+    return json(result);
+  }
+  if (method === 'DELETE') {
+    const result = await stub.deleteBackground();
+    if (result.error) return json(result, 404);
+    return json(result);
+  }
+  return json({ error: 'method_not_allowed' }, 405);
 }
 
 /** Uniform 6-digit code, e.g. "048213". */
@@ -157,6 +195,7 @@ async function handleApi(request, env, parts) {
       }
       return json({ error: 'method_not_allowed' }, 405);
     }
+    if (parts[2] === 'background') return handleBackground(request, stub);
     if (parts[2] === 'ws') {
       if (request.headers.get('Upgrade') !== 'websocket') {
         return json({ error: 'expected_websocket' }, 426);
