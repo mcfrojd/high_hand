@@ -96,3 +96,10 @@ Sidfoten på startsidan och admin visar till exempel `v2.1.0 (b5db583e)`.
 - Håll muspekaren över versionen för att se när den driftsattes och hela Version ID:t.
 
 `GET /api/version` returnerar samma uppgifter som JSON.
+
+## Förhandsbild i sociala medier
+
+När någon delar `highhand.se` visar Facebook, LinkedIn, X, Slack, Discord m.fl. bilden `public/images/social-preview.png` (1280×640). Den anges med Open Graph-taggarna (`og:*`) och `twitter:card` i `<head>` i `public/index.html`. Samma bild används som social preview för GitHub-repot.
+- `og:image` måste vara en absolut URL (`https://highhand.se/...`).
+- `robots.txt` släpper igenom bilden (`Allow: /images/social-preview.png`), annars hämtar vissa crawlers (t.ex. X) den inte.
+- Byts bilden eller texten: be Facebook läsa om sidan via [Sharing Debugger](https://developers.facebook.com/tools/debug/) (**Scrape Again**), annars visas den gamla förhandsvisningen ett tag.
