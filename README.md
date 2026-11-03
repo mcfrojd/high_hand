@@ -10,13 +10,15 @@ ___
 2. Du får två länkar:
    - **Skärm:** `https://highhand.se/<nyckel>/` öppnas på TV:n i fullskärm.
    - **Admin:** `https://highhand.se/<nyckel>/admin/` öppnas på mobilen.
-3. Uppdatera kort, hand, innehavare och antal i admin och klicka på **Spara**. Skärmen uppdateras direkt.
+3. I admin fyller du i spelarnamn och väljer de fem korten. Handen räknas ut automatiskt, och samma kort kan inte väljas två gånger.
+   Klicka på **Spara ny högsta hand**, så uppdateras skärmen direkt.
+   **Antal deltagare** (− / +) sparas direkt utan att du behöver klicka på Spara. **Reset** nollställer skärmen efter turneringen.
    I menyn (☰) kan du ändra klubbnamn, språk och bakgrund.
 
 **Få upp skärmen på TV:n (Chromecast med Google TV, smart-TV, platta):**
 1. Öppna **highhand.se/tv** i TV:ns webbläsare. Bokmärk gärna sidan, så räcker det i fortsättningen.
 2. TV:n visar en sexsiffrig kod.
-3. I admin på mobilen trycker du på menyn ☰, väljer **Koppla skärm** och skriver in koden. TV:n byter direkt till din high hand.
+3. I admin på mobilen scrollar du ner till **Koppla skärm** och skriver in koden. TV:n byter direkt till din high hand.
 
 Koden gäller i 10 minuter och kan bara användas en gång.
 När nyckeln går ut återgår en kopplad TV automatiskt till `/tv` och visar en ny kod.
