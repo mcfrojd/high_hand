@@ -4,7 +4,7 @@ export const CARD_VALUES = ['a', 'k', 'q', 'j', '10', '9', '8', '7', '6', '5', '
 export const SUITS = ['h', 'r', 'k', 's']; // hjärter, ruter, klöver, spader
 export const HANDS = [
   'royal_flush', 'straight_flush', 'four_kind', 'full_house', 'flush',
-  'straight', 'three_kind', 'two_pair', 'pair', 'side_pot',
+  'straight', 'three_kind', 'two_pair', 'pair', 'high_card', 'side_pot',
 ];
 export const BACKGROUNDS = ['room.jpg', 'table.jpg']; // first = default
 export const LANGS = ['sv', 'en'];
@@ -65,6 +65,8 @@ export function cleanPatch(patch) {
     if (!Array.isArray(c) || c.length !== 5 || !c.every((x) => VALID_CARDS.has(x))) {
       throw new ValidationError('cards');
     }
+    const faceUp = c.filter((x) => x !== 'nn');
+    if (new Set(faceUp).size !== faceUp.length) throw new ValidationError('cards'); // same card twice
     out.cards = [...c];
   }
   if ('hand' in patch) {
