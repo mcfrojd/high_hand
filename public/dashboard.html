@@ -26,6 +26,7 @@
             <div class="stat"><span class="stat-value" id="statActive">–</span><span class="stat-label">Aktiva nu</span></div>
             <div class="stat"><span class="stat-value" id="statMonth">–</span><span class="stat-label">Sessioner, 30 dagar</span></div>
             <div class="stat"><span class="stat-value" id="statClubs">–</span><span class="stat-label">Klubbar, 30 dagar</span></div>
+            <div class="stat"><span class="stat-value" id="statCustomBg">–</span><span class="stat-label">Aktiva med egen bild</span></div>
         </section>
 
         <section class="card">
@@ -40,6 +41,7 @@
                             <th>Innehavare</th>
                             <th class="num">Antal</th>
                             <th class="num">Sparningar</th>
+                            <th>Egen bild</th>
                             <th>Upphör</th>
                             <th>Skärm</th>
                         </tr>
@@ -68,6 +70,7 @@
                             <th>Innehavare</th>
                             <th class="num">Antal</th>
                             <th class="num">Sparningar</th>
+                            <th>Egen bild</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -106,6 +109,14 @@
             return el('td', {}, [el('div', { class: 'hand-name', text: handName(r) }), cards]);
         }
 
+        function bgCell(r) {
+            if (!r.customBg) return el('td', { class: 'muted', text: '–' });
+            return el('td', {}, [
+                el('span', { class: 'badge on', text: 'Ja' }),
+                el('div', { class: 'small muted', text: date(r.customBg) }),
+            ]);
+        }
+
         function clubCell(r) {
             return el('td', {}, [
                 el('div', { text: r.club || '–' }),
@@ -121,6 +132,7 @@
                 el('td', { text: r.holder || '' }),
                 el('td', { class: 'num', text: r.count || '' }),
                 el('td', { class: 'num', text: String(r.saves) }),
+                bgCell(r),
                 el('td', { text: date(r.expiresAt) }),
                 el('td', {}, el('a', { href: `/${r.key}/`, target: '_blank', rel: 'noopener', text: 'Öppna' })),
             ])));
@@ -143,6 +155,7 @@
                 el('td', { text: r.holder || '' }),
                 el('td', { class: 'num', text: r.count || '' }),
                 el('td', { class: 'num', text: String(r.saves) }),
+                bgCell(r),
                 el('td', {}, el('span', { class: r.active ? 'badge on' : 'badge', text: r.active ? 'Aktiv' : 'Utgången' })),
             ])));
             $('recentCount').textContent = `(${rows.length})`;
@@ -153,6 +166,7 @@
             renderActive(data.active);
             renderRecent();
             $('statActive').textContent = data.active.length;
+            $('statCustomBg').textContent = data.active.filter((r) => r.customBg).length;
             $('statMonth').textContent = data.recent.length;
             $('statClubs').textContent = new Set(data.recent.map((r) => r.club.trim().toLowerCase()).filter(Boolean)).size;
             $('updated').textContent = `Uppdaterad ${new Date().toLocaleTimeString('sv-SE')}`;
@@ -179,10 +193,10 @@
         }
 
         $('csv').addEventListener('click', () => {
-            const header = ['Datum', 'Klubb', 'Nyckel', 'Språk', 'High hand', 'Kort', 'Innehavare', 'Antal', 'Sparningar', 'Upphör', 'Status'];
+            const header = ['Datum', 'Klubb', 'Nyckel', 'Språk', 'High hand', 'Kort', 'Innehavare', 'Antal', 'Sparningar', 'Egen bild', 'Upphör', 'Status'];
             const lines = filtered().map((r) => [
                 new Date(r.createdAt).toISOString(), r.club, r.key, r.lang, handName(r), (r.cards || []).join(' '),
-                r.holder || '', r.count || '', r.saves, new Date(r.expiresAt).toISOString(), r.active ? 'Aktiv' : 'Utgången',
+                r.holder || '', r.count || '', r.saves, r.customBg ? 'Ja' : 'Nej', new Date(r.expiresAt).toISOString(), r.active ? 'Aktiv' : 'Utgången',
             ].map(csvCell).join(';'));
             const blob = new Blob(['﻿' + [header.map(csvCell).join(';'), ...lines].join('\r\n')], { type: 'text/csv;charset=utf-8' });
             const a = el('a', { href: URL.createObjectURL(blob), download: `highhand-${new Date().toISOString().slice(0, 10)}.csv` });

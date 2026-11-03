@@ -33,7 +33,7 @@ Det fungerar också att öppna skärmlänken direkt i valfri webbläsare och vis
 
 ## Uppdatera high hand
 
-![Admin](screenshots/hh-admin.jpg)
+<img src="screenshots/hh-admin.jpg" alt="Admin på mobilen" width="320">
 
 I admin gör du så här:
 
@@ -46,9 +46,22 @@ I admin gör du så här:
 - Klicka på **Spara ny högsta hand**. Skärmen uppdateras direkt.
 - **Reset** nollställer skärmen efter turneringen.
 
+<img src="screenshots/hh-admin-meny.jpg" alt="Admin-menyn" width="300" align="right">
+
 I menyn **☰** kan du ändra klubbnamn, språk (svenska eller engelska) och bakgrund.
 Där kan du också **ladda upp en egen bakgrundsbild**, till exempel ett foto från mobilen.
 Bilden förminskas automatiskt, och en ny uppladdning ersätter den förra. Bilden raderas när nyckeln går ut.
+
+**Tips för egen bakgrundsbild:**
+- **Format:** en liggande bild i **16:9**, helst **1920×1080 px**. Det motsvarar en vanlig TV i full HD.
+  - Bilder med andra proportioner beskärs i kanterna för att fylla skärmen.
+  - Stående bilder tappar alltså mycket upptill och nedtill.
+- **Storlek:** större bilder går bra, men de förminskas till högst 1920 px innan uppladdning. En 4K-bild ger därför inte skarpare resultat.
+- **Mörkare på skärmen:** bilden visas mörkare så att korten och texten syns. Välj gärna en bild som inte redan är väldigt mörk.
+- **Undvik plottriga bilder:** mycket text eller detaljer mitt i bilden gör korten svårare att se.
+- **Filtyp:** JPEG och PNG fungerar i alla webbläsare. HEIC-bilder från iPhone fungerar i Safari.
+
+<br clear="right">
 
 ## Bra att veta
 

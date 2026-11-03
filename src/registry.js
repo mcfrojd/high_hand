@@ -27,6 +27,9 @@ export class Registry extends DurableObject {
       );
       CREATE INDEX IF NOT EXISTS sessions_created_at ON sessions (created_at);
     `);
+    // Added later: when the session uploaded its own background (null = none).
+    const cols = this.sql.exec('PRAGMA table_info(sessions)').toArray().map((c) => c.name);
+    if (!cols.includes('custom_bg')) this.sql.exec('ALTER TABLE sessions ADD COLUMN custom_bg INTEGER');
   }
 
   async ensureAlarm() {
@@ -66,6 +69,11 @@ export class Registry extends DurableObject {
     }
   }
 
+  /** `customBg` = upload time, or null when the image was removed. */
+  async recordBackground(key, customBg) {
+    this.sql.exec('UPDATE sessions SET custom_bg = ?, updated_at = ? WHERE key = ?', customBg, Date.now(), key);
+  }
+
   async list(now = Date.now()) {
     this.prune(now);
     const rows = this.sql
@@ -83,6 +91,7 @@ export class Registry extends DurableObject {
         cards: r.cards ? JSON.parse(r.cards) : null,
         count: r.count,
         saves: r.saves,
+        customBg: r.custom_bg ?? null,
         active: r.expires_at > now,
       }));
     return { now, active: rows.filter((r) => r.active), recent: rows };
