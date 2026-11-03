@@ -317,3 +317,42 @@ a {
 .site-footer a:hover {
     color: var(--accent);
 }
+
+a.btn {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text);
+}
+
+.link-row a.btn {
+    flex: 0 0 auto;
+    border-radius: 4px;
+    background: #333;
+    font-family: inherit;
+    font-size: inherit;
+    padding: 10px 12px;
+}
+
+.link-row a.btn:hover {
+    background: #444;
+}
+
+/* link on top, four equal buttons below */
+.link-block .link-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.link-block .link-row > a:not(.btn) {
+    grid-column: 1 / -1;
+}
+
+.link-block .link-row .btn {
+    justify-content: center;
+    text-align: center;
+    padding: 10px 4px;
+    font-size: 0.95rem;
+    min-width: 0;
+}
