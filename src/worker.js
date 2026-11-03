@@ -258,52 +258,120 @@ async function handleApi(request, env, parts, ctx) {
   return json({ error: 'not_found' }, 404);
 }
 
-// ---- Private dashboard (Basic Auth, password from the DASHBOARD_PASSWORD secret) ----
+// ---- Private dashboard ----
+// Login form (so password managers like Bitwarden/Vaultwarden can autofill)
+// -> signed, HttpOnly session cookie. Password from the DASHBOARD_PASSWORD secret.
+// Basic Auth still works for scripts (curl -u admin:...), without a browser prompt.
+
+const DASH_USER = 'admin';
+const DASH_COOKIE = 'hh_dash';
+const DASH_SESSION_MS = 12 * 60 * 60 * 1000;
 
 async function sha256(text) {
   return crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
 }
 
-/** Returns null when authorised, otherwise the Response to send. */
-async function requireAuth(request, env) {
-  if (!env.DASHBOARD_PASSWORD) return new Response('Not found', { status: 404 });
+/** Constant-time check of a username/password pair. */
+async function checkCredentials(env, user, pass) {
+  const [a, b] = await Promise.all([
+    sha256(`${DASH_USER}:${env.DASHBOARD_PASSWORD}`),
+    sha256(`${user}:${pass}`),
+  ]);
+  return crypto.subtle.timingSafeEqual(a, b);
+}
+
+const b64url = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+/** HMAC key derived from the password: changing the password logs everyone out. */
+async function sessionKey(env) {
+  const raw = await sha256(`hh-dashboard-session:${env.DASHBOARD_PASSWORD}`);
+  return crypto.subtle.importKey('raw', raw, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']);
+}
+
+async function makeSessionCookie(env) {
+  const exp = Date.now() + DASH_SESSION_MS;
+  const payload = String(exp);
+  const sig = await crypto.subtle.sign('HMAC', await sessionKey(env), new TextEncoder().encode(payload));
+  const value = `${payload}.${b64url(sig)}`;
+  return `${DASH_COOKIE}=${value}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${DASH_SESSION_MS / 1000}`;
+}
+
+function clearSessionCookie() {
+  return `${DASH_COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`;
+}
+
+async function hasValidSession(request, env) {
+  const cookie = request.headers.get('Cookie') || '';
+  const m = cookie.match(new RegExp(`(?:^|;\\s*)${DASH_COOKIE}=([0-9]+)\\.([A-Za-z0-9_-]+)`));
+  if (!m) return false;
+  const [, payload, sig] = m;
+  if (Number(payload) < Date.now()) return false;
+  const expected = b64url(await crypto.subtle.sign('HMAC', await sessionKey(env), new TextEncoder().encode(payload)));
+  const [a, b] = await Promise.all([sha256(expected), sha256(sig)]);
+  return crypto.subtle.timingSafeEqual(a, b);
+}
+
+async function hasValidBasicAuth(request, env) {
   const header = request.headers.get('Authorization') || '';
-  let user = '';
-  let pass = '';
-  if (header.startsWith('Basic ')) {
-    try {
-      const bytes = Uint8Array.from(atob(header.slice(6)), (c) => c.charCodeAt(0));
-      const decoded = new TextDecoder().decode(bytes);
-      const i = decoded.indexOf(':');
-      if (i >= 0) {
-        user = decoded.slice(0, i);
-        pass = decoded.slice(i + 1);
-      }
-    } catch {
-      // malformed header -> unauthorised
-    }
+  if (!header.startsWith('Basic ')) return false;
+  try {
+    const bytes = Uint8Array.from(atob(header.slice(6)), (c) => c.charCodeAt(0));
+    const decoded = new TextDecoder().decode(bytes);
+    const i = decoded.indexOf(':');
+    return i >= 0 && checkCredentials(env, decoded.slice(0, i), decoded.slice(i + 1));
+  } catch {
+    return false;
   }
-  const [a, b] = await Promise.all([sha256(`admin:${env.DASHBOARD_PASSWORD}`), sha256(`${user}:${pass}`)]);
-  if (crypto.subtle.timingSafeEqual(a, b)) return null;
-  return new Response('Authentication required', {
-    status: 401,
-    headers: {
-      'WWW-Authenticate': 'Basic realm="highhand-dashboard", charset="UTF-8"',
-      'Cache-Control': 'no-store',
-      'X-Robots-Tag': 'noindex',
-    },
-  });
+}
+
+function redirect(location, cookie) {
+  const headers = { Location: location, 'Cache-Control': 'no-store' };
+  if (cookie) headers['Set-Cookie'] = cookie;
+  return new Response(null, { status: 303, headers });
 }
 
 async function handleDashboard(request, env, url) {
-  const denied = await requireAuth(request, env);
-  if (denied) return denied;
-  if (url.pathname === '/api/dashboard/sessions') {
+  if (!env.DASHBOARD_PASSWORD) return new Response('Not found', { status: 404 });
+  const path = url.pathname;
+
+  // Login page + form post
+  if (path === '/dashboard/login') {
+    if (request.method === 'POST') {
+      let user = '';
+      let pass = '';
+      try {
+        const form = await request.formData();
+        user = String(form.get('username') || '');
+        pass = String(form.get('password') || '');
+      } catch {
+        // invalid body -> wrong credentials
+      }
+      if (user.length <= 100 && pass.length <= 200 && (await checkCredentials(env, user, pass))) {
+        return redirect('/dashboard/', await makeSessionCookie(env));
+      }
+      // Slow down guessing a little (wall time, not CPU).
+      await new Promise((r) => setTimeout(r, 800));
+      return redirect('/dashboard/login?fel=1');
+    }
+    if (await hasValidSession(request, env)) return redirect('/dashboard/');
+    const res = await servePage(request, env, '/dashboard-login');
+    res.headers.set('Cache-Control', 'no-store');
+    return res;
+  }
+  if (path === '/dashboard/logout') {
+    if (request.method !== 'POST') return json({ error: 'method_not_allowed' }, 405);
+    return redirect('/dashboard/login', clearSessionCookie());
+  }
+
+  const authed = (await hasValidSession(request, env)) || (await hasValidBasicAuth(request, env));
+  if (path === '/api/dashboard/sessions') {
+    if (!authed) return json({ error: 'unauthorized' }, 401);
     if (request.method !== 'GET') return json({ error: 'method_not_allowed' }, 405);
     const registry = env.REGISTRY.get(env.REGISTRY.idFromName('global'));
     return json(await registry.list(Date.now()));
   }
-  if (url.pathname === '/dashboard') return Response.redirect(`${url.origin}/dashboard/`, 301);
+  if (!authed) return redirect('/dashboard/login');
+  if (path === '/dashboard') return Response.redirect(`${url.origin}/dashboard/`, 301);
   const res = await servePage(request, env, '/dashboard');
   res.headers.set('Cache-Control', 'no-store');
   return res;
@@ -328,7 +396,7 @@ export default {
     const url = new URL(request.url);
     const parts = url.pathname.split('/').filter(Boolean);
 
-    if (url.pathname === '/dashboard' || url.pathname === '/dashboard/' || url.pathname === '/api/dashboard/sessions') {
+    if (['/dashboard', '/dashboard/', '/dashboard/login', '/dashboard/logout', '/api/dashboard/sessions'].includes(url.pathname)) {
       return handleDashboard(request, env, url);
     }
     // The raw asset must never be reachable without the auth check above.

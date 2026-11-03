@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="sv">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Logga in – High Hand dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" href="/images/misc/icon-192.png">
+    <link rel="stylesheet" href="/css/start.css">
+</head>
+
+<body>
+    <main class="page login-page">
+        <header class="hero">
+            <img src="/images/misc/logo.png" alt="" class="logo">
+            <h1>Dashboard</h1>
+        </header>
+
+        <section class="card">
+            <h2>Logga in</h2>
+            <!-- Plain username/password form so password managers (Bitwarden, Vaultwarden, browsers) can autofill. -->
+            <form id="loginForm" method="post" action="/dashboard/login" autocomplete="on">
+                <label for="username">Användarnamn</label>
+                <input type="text" id="username" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+                <label for="password">Lösenord</label>
+                <input type="password" id="password" name="password" autocomplete="current-password" required>
+                <p class="error" id="loginError" role="alert" hidden>Fel användarnamn eller lösenord.</p>
+                <button type="submit" class="btn primary">Logga in</button>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        if (new URLSearchParams(location.search).has('fel')) {
+            document.getElementById('loginError').hidden = false;
+        }
+        document.getElementById('username').focus();
+    </script>
+</body>
+
+</html>

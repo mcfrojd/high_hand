@@ -64,7 +64,13 @@ Dashboarden är avstängd (404) tills ett lösenord har satts som **Secret** på
 npx wrangler secret put DASHBOARD_PASSWORD
 ```
 
-Logga in med användarnamnet `admin` och lösenordet.
+Gå till `/dashboard/`. Du skickas då till inloggningssidan `/dashboard/login`.
+- Logga in med användarnamnet `admin` och lösenordet.
+- Formuläret är ett vanligt användarnamn/lösenord-formulär, så Bitwarden, Vaultwarden och webbläsarens lösenordshanterare kan spara och autofylla det. Spara posten med adressen `https://highhand.se/dashboard/login`.
+- Efter inloggning sätts en signerad sessionscookie (HttpOnly, Secure, SameSite=Lax) som gäller i 12 timmar.
+- Knappen **Logga ut** finns på dashboarden.
+- Byter du lösenordet loggas alla befintliga sessioner ut.
+- För skript fungerar Basic Auth fortfarande mot API:t: `curl -u admin:<lösenord> https://highhand.se/api/dashboard/sessions`.
 
 ## Notis vid ny session (ntfy)
 

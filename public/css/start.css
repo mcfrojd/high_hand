@@ -385,3 +385,7 @@ a.btn {
     font-variant-numeric: tabular-nums;
     cursor: help;
 }
+
+.login-page {
+    max-width: 420px;
+}

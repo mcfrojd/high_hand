@@ -18,6 +18,9 @@
             <div class="dash-actions">
                 <span class="small" id="updated"></span>
                 <button type="button" class="btn" id="refresh">Uppdatera</button>
+                <form method="post" action="/dashboard/logout">
+                    <button type="submit" class="btn">Logga ut</button>
+                </form>
             </div>
         </header>
         <p class="error" id="error" role="alert" hidden></p>
@@ -175,6 +178,10 @@
         async function load() {
             try {
                 const res = await fetch('/api/dashboard/sessions', { cache: 'no-store', credentials: 'same-origin' });
+                if (res.status === 401) {
+                    location.href = '/dashboard/login';
+                    return;
+                }
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 data = await res.json();
                 $('error').hidden = true;
