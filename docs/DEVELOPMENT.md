@@ -103,3 +103,9 @@ När någon delar `highhand.se` visar Facebook, LinkedIn, X, Slack, Discord m.fl
 - `og:image` måste vara en absolut URL (`https://highhand.se/...`).
 - `robots.txt` släpper igenom bilden (`Allow: /images/social-preview.png`), annars hämtar vissa crawlers (t.ex. X) den inte.
 - Byts bilden eller texten: be Facebook läsa om sidan via [Sharing Debugger](https://developers.facebook.com/tools/debug/) (**Scrape Again**), annars visas den gamla förhandsvisningen ett tag.
+
+## Besöksstatistik (Matomo)
+
+`public/js/matomo.js` skickar sidvisningar till Matomo på `matomo.mcfrojd.se` (site ID 2). Skriptet laddas på startsidan, `/tv`, skärm, admin och 404, men inte på den privata dashboarden.
+- Skärm- och adminsidans adress innehåller den hemliga nyckeln. Skriptet byter därför ut den mot `KEY` (`/KEY/` och `/KEY/admin/`), sätter titeln till `Display`/`Admin` (titeln kan annars innehålla klubbnamnet) och skickar ingen referrer. Nyckeln ska aldrig hamna i Matomo.
+- Ändra inte till Matomos standardkod utan att behålla den maskeringen.
