@@ -1,7 +1,8 @@
 // Shared site footer: logo, credit, source link and deployed version.
 import { strings } from '/js/i18n.js';
 
-export async function renderFooter(el, lang = 'sv') {
+/** `extra`: optional elements (e.g. links) added after the source link. */
+export async function renderFooter(el, lang = 'sv', extra = []) {
   if (!el) return;
   const s = strings(lang);
   const logo = document.createElement('img');
@@ -23,7 +24,7 @@ export async function renderFooter(el, lang = 'sv') {
   src.textContent = s.sourceCode;
   const version = document.createElement('span');
   version.className = 'footer-version';
-  line.append(by, name, ' · ', src, version);
+  line.append(by, name, ' · ', src, ...extra.flatMap((x) => [' · ', x]), version);
   el.replaceChildren(logo, line);
 
   try {

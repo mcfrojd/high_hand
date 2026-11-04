@@ -109,3 +109,12 @@ När någon delar `highhand.se` visar Facebook, LinkedIn, X, Slack, Discord m.fl
 `public/js/matomo.js` skickar sidvisningar till Matomo på `matomo.mcfrojd.se` (site ID 2). Skriptet laddas på startsidan, `/tv`, skärm, admin och 404, men inte på den privata dashboarden.
 - Skärm- och adminsidans adress innehåller den hemliga nyckeln. Skriptet byter därför ut den mot `KEY` (`/KEY/` och `/KEY/admin/`), sätter titeln till `Display`/`Admin` (titeln kan annars innehålla klubbnamnet) och skickar ingen referrer. Nyckeln ska aldrig hamna i Matomo.
 - Ändra inte till Matomos standardkod utan att behålla den maskeringen.
+
+### Samtycke till kakor (LEK/GDPR)
+
+- `matomo.js` skickar alltid `requireCookieConsent`. Utan samtycke räknar Matomo bara sidvisningar och sätter inga kakor.
+- Bara startsidan visar en banner (`public/js/consent.js`) med **Godkänn** / **Neka**. TV-, skärm- och adminsidan visar ingen banner.
+- **Godkänn** anropar `rememberCookieConsentGiven`. Matomo sparar då samtycket i kakan `mtm_cookie_consent`, som gäller på alla sidor, även skärm och admin.
+- **Neka** anropar `forgetCookieConsentGiven`, som tar bort Matomos kakor.
+- Valet sparas i `localStorage` (`highhand:cookieConsent`), så bannern visas inte igen. Länken **Kakor** i sidfoten på startsidan öppnar den igen.
+- Rekommenderat i Matomo: slå på IP-anonymisering (**Administration → Privacy → Anonymize data**).

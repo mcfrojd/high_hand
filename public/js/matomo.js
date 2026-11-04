@@ -13,6 +13,8 @@ var _paq = window._paq = window._paq || [];
     _paq.push(['setReferrerUrl', '']);
   }
 })();
+// No cookies until the visitor accepts in the banner on the start page (consent.js).
+_paq.push(['requireCookieConsent']);
 /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
 _paq.push(['trackPageView']);
 _paq.push(['enableLinkTracking']);
